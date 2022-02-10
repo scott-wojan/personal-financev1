@@ -11,7 +11,7 @@ export default function CategoriesSelect({
   const onSelect = (option) => {
     setNewValue(option.title);
     setIsEditing(false);
-    onChange?.(option);
+    onChange?.(option, value);
   };
 
   useEffect(() => {

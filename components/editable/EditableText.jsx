@@ -1,4 +1,4 @@
-import { format } from "../utils/formatting";
+import { format } from "components/utils/formatting";
 import React, { useEffect, useState } from "react";
 import ContentEditable from "react-contenteditable";
 
@@ -11,6 +11,9 @@ export default function EditableText({
   const [unFormattedValue, setUnFormattedValue] = useState(value);
   const [formattedValue, setFormattedValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
+  useEffect(() => {
+    setUnFormattedValue(value);
+  }, [value]);
 
   useEffect(() => {
     if (formatting) {

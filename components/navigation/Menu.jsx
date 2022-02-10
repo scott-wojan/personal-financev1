@@ -13,12 +13,12 @@ export default function Menu({
           orientation == "horizontal" ? "" : "flex-col"
         } ${className}`}
       >
-        {menuItems.map((menu, index) => {
+        {menuItems.map((menuItem, index) => {
           const depthLevel = 0;
           return (
-            <MenuItems
-              items={menu}
+            <MenuItem
               key={index}
+              items={menuItem}
               depthLevel={depthLevel}
               onClick={onClick}
             />
@@ -29,7 +29,7 @@ export default function Menu({
   );
 }
 
-function MenuItems({ items, depthLevel, onClick }) {
+function MenuItem({ items, depthLevel, onClick }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   let ref = useRef();
@@ -103,9 +103,9 @@ function SubMenuItems({ menuItems, show, depthLevel, onClick }) {
   const submenuStyle = depthLevel > 1 ? "sub-menu-item" : "";
   return (
     <ul className={`sub-menu-items ${submenuStyle} ${show ? "show" : ""}`}>
-      {menuItems.map((submenu, index) => (
-        <MenuItems
-          items={submenu}
+      {menuItems.map((menuItem, index) => (
+        <MenuItem
+          items={menuItem}
           key={index}
           depthLevel={depthLevel}
           onClick={onClick}

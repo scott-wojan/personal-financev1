@@ -1,12 +1,14 @@
 export const categories = [
   {
+    id: "12345",
     title: "Bank Fees",
     submenu: [
       {
+        id: "6789",
         title: "ATM",
         submenu: [{ title: "I feel pretty, oh so pretty and bright" }],
       },
-      { title: "Bank Fees General" },
+      { id: "5555", title: "Bank Fees General" },
       { title: "Cash Advance" },
       { title: "Excess Activity" },
       { title: "Foreign Transaction" },

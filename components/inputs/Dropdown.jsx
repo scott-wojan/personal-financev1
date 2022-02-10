@@ -39,11 +39,11 @@ export default function Dropdown({ value = "", options, onChange }) {
   }, [value]);
 
   return (
-    <div className="relative ">
+    <div className="relative w-full ">
       <span className="" onClick={() => setIsOpen(!isOpen)}>
-        <div className="flex flex-row items-center">
-          <div className="flex flex-col ">
-            <div className="relative">
+        <div className="flex flex-row items-center ">
+          <div className="flex flex-col w-full ">
+            <div className="relative w-full">
               <div
                 onClick={() => {
                   setIsOpen(!isOpen);
@@ -58,7 +58,7 @@ export default function Dropdown({ value = "", options, onChange }) {
               </div>
               <input
                 type="text"
-                className=""
+                className="w-full"
                 value={newValue ?? ""}
                 onChange={onSearch}
               />

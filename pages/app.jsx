@@ -13,16 +13,17 @@ import Page from "../components/Page";
 import Table from "../components/table/Table";
 
 export default function AppHome() {
-  const [value, setValue] = useState("Poop");
   const onChange = (row, propertyName, newValue, oldValue) => {
-    console.log(
-      `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue} for '${row.values.id}'`,
-      row
-    );
-  };
-
-  const onCategoryChange = () => {
-    console.log("onCategoryChange");
+    if (propertyName === "category") {
+      console.log(
+        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue.id}' for '${row.values.id}'`,
+        row
+      );
+    } else
+      console.log(
+        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.values.id}'`,
+        row
+      );
   };
 
   const columns = React.useMemo(
@@ -59,7 +60,7 @@ export default function AppHome() {
         // maxWidth: 250,
         // minWidth: 250,
         isEditable: true,
-        Cell: ({ value, onChange, disabled, formatting }) => {
+        Cell: ({ value, onChange }) => {
           return (
             <CategoriesSelect
               options={categories}
