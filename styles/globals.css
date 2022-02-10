@@ -1,16 +1,69 @@
-html,
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import "./table";
+@import "./pagination";
+
+:root {
+  --primary-color: #118c4f;
+}
+
 body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  @apply bg-orange-200;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.nav-area {
+  display: flex;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 58px;
 }
 
-* {
-  box-sizing: border-box;
+.menu {
+  @apply flex bg-white border border-solid border-gray-300 list-none;
+
+  .menu-items {
+    @apply relative text-sm w-full;
+
+    div {
+      @apply block no-underline cursor-pointer;
+    }
+
+    button {
+      @apply flex justify-between border-0 bg-transparent cursor-pointer w-full whitespace-nowrap;
+    }
+
+    div,
+    button {
+      @apply text-left pt-2 pb-2 pl-4 pr-4;
+    }
+
+    div:hover,
+    button:hover {
+      @apply bg-gray-200;
+    }
+
+    .arrow::after {
+      @apply inline-block ml-1;
+      content: "";
+      margin-left: 0.28em;
+      vertical-align: 0.09em;
+      border-top: 0.42em solid;
+      border-right: 0.32em solid transparent;
+      border-left: 0.32em solid transparent;
+    }
+  }
+}
+
+.sub-menu-items {
+  @apply hidden absolute right-0 left-1/4 z-50 min-w-max py-2 px-0 bg-white drop-shadow-md whitespace-nowrap;
+  .sub-menu-item {
+    @apply absolute whitespace-nowrap left-1/2 -top-2;
+  }
+}
+
+.show {
+  @apply block;
 }
