@@ -26,13 +26,13 @@ const saveCategories = async (categories) => {
       (
         id,
         category,
-        category_sub
+        subcategory
       )
     VALUES ($1, $2, $3)
     ON CONFLICT (id)
     DO UPDATE SET
       category=$2,
-      category_sub=$3
+      subcategory=$3
   `;
 
     await db.save(sql, [

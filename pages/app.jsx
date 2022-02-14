@@ -134,27 +134,24 @@ export default function AppHome() {
           }}
         />
       </div> */}
-      <Table
+      {/* <Table
         columns={columns}
         onChange={onChange}
         query={{
           name: "transactions",
           function: fetchTransactionData,
-          params: [
-            "mmo99K3mx8uap1KvZmoeFAmyzqBMZ4FL4K74K",
-            "2019-01-01",
-            "2022-01-01",
-          ],
+          params: ["usaa_checking", "2019-01-01", "2022-01-01"],
         }}
-      />
-      {/* <div className="flex">
+      /> */}
+
+      <div className="flex">
         <div className="w-1/2">
           <StackedBarChart />
         </div>
         <div className="flex justify-center w-1/4 align-center h-80">
-          <DoughnutChart />
+          {/* <DoughnutChart /> */}
         </div>
-      </div> */}
+      </div>
     </Page>
   );
 }

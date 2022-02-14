@@ -9,7 +9,11 @@ import {
 
 export default async function handler(req, res) {
   const user = getUserFromCookie(req, res);
-  const { accountId, startDate, endDate, limit, offset } = req.body;
+  const { accountId, startDate, endDate, limit } = req.body;
+  let { offset } = req.body;
+  if (offset < 1) offset = 1;
+
+  console.log({ accountId, startDate, endDate, limit, offset });
 
   try {
     if (!user) return res.status(401).json();

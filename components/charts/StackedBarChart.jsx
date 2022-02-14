@@ -1,4 +1,7 @@
 import React from "react";
+import { useQuery } from "react-query";
+import { Bar } from "react-chartjs-2";
+import { faker } from "@faker-js/faker";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,8 +13,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
-import { faker } from "@faker-js/faker";
 
 ChartJS.register(
   CategoryScale,
@@ -45,13 +46,38 @@ export const options = {
   },
 };
 
-const labels = ["January", "February", "March", "April", "May", "June", "July"];
-const incomeData = labels.map(() =>
-  faker.datatype.number({ min: 0, max: 1000 })
-);
-const expenseData = labels.map(() =>
-  faker.datatype.number({ min: -1000, max: 0 })
-);
+const labels = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "July",
+  "Aug",
+  "Sept",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+// const incomeData = labels.map(() =>
+//   faker.datatype.number({ min: 0, max: 1000 })
+// );
+// const expenseData = labels.map(() =>
+//   faker.datatype.number({ min: -1000, max: 0 })
+// );
+
+const incomeData = [
+  8824.29, 8832.5, 104536.16, 8834.06, 8930.09, 8992.19, 7430.29, 23676.83,
+  10749.14, 15560.2, 20999.72, 14451.76,
+];
+
+const expenseData = [
+  -36907.89, -17414.69, -30716.21, -105045.59, -28717.66, -13112.9, -10205.87,
+  -15243.04, -14982.26, -12700.08, -9840.73, -18641.12,
+];
+
+console.log(incomeData, expenseData);
 
 const diff = incomeData.map((data, index) => {
   return incomeData[index] + expenseData[index];

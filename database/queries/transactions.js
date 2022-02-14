@@ -36,10 +36,10 @@ const saveTransactions = async (transactions) => {
             name,
             merchant_name,
             payment_channel,
-            pending,
+            is_pending,
             type,
             category,
-            category_sub,
+            subcategory,
             transaction_code
           )
         VALUES
@@ -65,10 +65,10 @@ const saveTransactions = async (transactions) => {
           name = $17,
           merchant_name = $18,
           payment_channel = $19,
-          pending = $20,
+          is_pending = $20,
           type = $21,
           category = $22,
-          category_sub = $23,
+          subcategory = $23,
           transaction_code = $24
       `,
       values: [
@@ -91,7 +91,7 @@ const saveTransactions = async (transactions) => {
         transaction.name ?? null,
         transaction.merchant_name ?? null,
         transaction.payment_channel ?? null,
-        transaction.pending ?? null,
+        transaction.is_pending ?? null,
         transaction.transaction_type,
         category,
         categorySub,

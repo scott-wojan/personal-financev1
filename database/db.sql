@@ -6,84 +6,147 @@ DROP TABLE IF EXISTS user_institutions;
 DROP TABLE IF EXISTS institutions;
 DROP TABLE IF EXISTS users;
 */
+CREATE EXTENSION tablefunc;
+CREATE EXTENSION citext;
 
-CREATE TABLE IF NOT EXISTS categories
-(
-  id text PRIMARY KEY,
-  category text,
-  category_sub text
-);
 
 CREATE TABLE IF NOT EXISTS users
 (
   id SERIAL PRIMARY KEY,
-  email text UNIQUE NOT NULL,
+  email citext UNIQUE NOT NULL,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
 
+-- insert into users(email) values('test@test.com')
+
+
 
 CREATE TABLE IF NOT EXISTS institutions
 (
-    id text PRIMARY KEY,
-    name text NOT NULL,
-    url text,
-    primary_color text,
-    logo text,
+    id citext PRIMARY KEY,
+    name citext NOT NULL,
+    url citext,
+    primary_color citext,
+    logo citext,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+-- insert into institutions(id,name) values('usaa','USAA')
+
+
+CREATE TABLE IF NOT EXISTS accounts
+(
+    id citext PRIMARY KEY,
+    access_token text NOT NULL,    
+    name citext NOT NULL,
+    mask citext NOT NULL,
+    official_name citext,
+    current_balance numeric(28,10),
+    available_balance numeric(28,10),
+    iso_currency_code citext,
+    account_limit numeric(28,10),
+    type citext NOT NULL,
+    subtype citext NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    user_id integer REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,    
+    institution_id citext REFERENCES institutions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- INSERT INTO public.accounts(id, access_token, name, mask, official_name, current_balance, available_balance, iso_currency_code, account_limit, type, subtype, user_id, institution_id) 
+-- VALUES ('usaa_checking', '12345', 'USAA Checking', '9901', 'USAA Super Checking', null, null, 'USA', null, 'depository', 'checking', 1, 'usaa');
+
+CREATE TABLE transactions
+(
+    id citext PRIMARY KEY,
+    account_id citext REFERENCES accounts(id) ON DELETE CASCADE,
+    amount numeric(28,10),
+    iso_currency_code citext,
+    imported_category_id citext,
+    imported_category citext,
+    imported_subcategory citext,
+    imported_name citext,
+    category citext,
+    subcategory citext,
+    name citext,
+    check_number citext,
+    date date,
+    month integer,
+    year integer,
+    authorized_date date,
+    address citext,
+    city citext,
+    region citext,
+    postal_code citext,
+    country citext,
+    lat double precision,
+    lon double precision,
+    store_number citext,
+    merchant_name citext,
+    payment_channel citext,
+    is_pending boolean default false,
+    type citext,
+    transaction_code citext,
+    is_recurring boolean,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now()
 );
 
 
-CREATE TABLE IF NOT EXISTS accounts
+
+
+
+
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS categories
 (
-    id text PRIMARY KEY,
-    access_token text NOT NULL,    
-    name text NOT NULL,
-    mask text NOT NULL,
-    official_name text,
-    current_balance numeric(28,10),
-    available_balance numeric(28,10),
-    iso_currency_code text,
-    account_limit numeric(28,10),
-    type text NOT NULL,
-    subtype text NOT NULL,
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now(),
-    user_id integer REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,    
-    institution_id text REFERENCES institutions(id) ON DELETE CASCADE ON UPDATE CASCADE
+  id text PRIMARY KEY,
+  category text,
+  subcategory text
 );
+
+
 
 CREATE TABLE transactions
 (
-  id text PRIMARY KEY,	
-  account_id text REFERENCES accounts(id) ON DELETE CASCADE,
-  amount numeric(28,10),
-  iso_currency_code text,	
-  category_id text,
-  category text,
-  category_sub text,
-  check_number text,
-  date date,
-  month int,
-  year int,
-  authorized_date date,
-  address text,
-  city text,
-  region text,
-  postal_code text,
-  country text,
-  lat float,
-  lon float,
-  store_number text,
-  name text,
-  merchant_name text,
-  payment_channel text,
-  pending boolean,
-  type text,
-  transaction_code text,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+    id text PRIMARY KEY,
+    account_id text REFERENCES accounts(id) ON DELETE CASCADE,
+    amount numeric(28,10),
+    iso_currency_code text,
+    imported_category_id text,
+    imported_category text,
+    imported_subcategory text,
+    imported_name text,
+    category text,
+    subcategory text,
+    name text,
+    check_number text,
+    date date,
+    month integer,
+    year integer,
+    authorized_date date,
+    address text,
+    city text,
+    region text,
+    postal_code text,
+    country text,
+    lat double precision,
+    lon double precision,
+    store_number text,
+    merchant_name text,
+    payment_channel text,
+    is_pending boolean,
+    type text,
+    transaction_code text,
+    is_recurring boolean,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS user_institutions
@@ -101,7 +164,7 @@ CREATE FUNCTION set_transaction_values() RETURNS trigger AS $$
   BEGIN
     NEW.month := EXTRACT(MONTH FROM NEW.date);
     NEW.year := EXTRACT(YEAR FROM NEW.date);
-    NEW.category_sub :=COALESCE(NEW.category_sub, NEW.category || ' General', NEW.category_sub);
+    NEW.subcategory :=COALESCE(NEW.subcategory, NEW.category || ' General', NEW.subcategory);
     RETURN NEW;
   END
 $$ LANGUAGE plpgsql;
@@ -144,7 +207,7 @@ RETURNS TABLE (
 AS $$
 BEGIN
 RETURN QUERY 
-SELECT category_sub, sum(t.amount) as amount
+SELECT subcategory, sum(t.amount) as amount
   FROM transactions t
  INNER JOIN accounts a on a.id = t.account_id  
  WHERE a.user_id = userId
@@ -200,7 +263,7 @@ RETURN QUERY
     ) as count, 
     (SELECT json_agg(t.*) 
        FROM (
-           SELECT t.id, t.date, t.name, t.amount, t.category, t.category_sub, t.iso_currency_code
+           SELECT t.id, t.date, t.name, t.amount, t.category, t.subcategory, t.iso_currency_code
 		     FROM transactions t
 	        INNER JOIN accounts a on a.id = t.account_id		   
 		   	WHERE a.user_id = userId
@@ -230,7 +293,7 @@ RETURN QUERY
     ) as count, 
     (SELECT json_agg(t.*) 
        FROM (
-           SELECT t.id, t.date, t.name, t.amount, t.category, t.category_sub, t.iso_currency_code
+           SELECT t.id, t.date, t.name, t.amount, t.category, t.subcategory, t.iso_currency_code
 		     FROM transactions t
 	        INNER JOIN accounts a on a.id = t.account_id		   
 		   	WHERE a.user_id = userId
@@ -260,7 +323,7 @@ RETURN QUERY
     ) as count, 
     (SELECT json_agg(t.*) 
        FROM (
-           SELECT t.id, t.date, t.name, t.amount, t.category, t.category_sub, t.iso_currency_code
+           SELECT t.id, t.date, t.name, t.amount, t.category, t.subcategory, t.iso_currency_code
 		     FROM transactions t
 	        INNER JOIN accounts a on a.id = t.account_id		   
 		   	WHERE a.user_id = userId
@@ -291,7 +354,7 @@ RETURN QUERY
     ) as count, 
     (SELECT json_agg(t.*) 
        FROM (
-           SELECT t.id, t.date, t.name, t.amount, t.category, t.category_sub, t.iso_currency_code
+           SELECT t.id, t.date, t.name, t.amount, t.category, t.subcategory, t.iso_currency_code
 		     FROM transactions t
 	        INNER JOIN accounts a on a.id = t.account_id		   
 		   	WHERE a.user_id = userId

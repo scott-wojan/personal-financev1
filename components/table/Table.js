@@ -90,7 +90,7 @@ export default function Table({ columns, query, onChange = undefined }) {
   } = useTable(
     {
       columns,
-      data: isSuccess ? data.data : [],
+      data: isSuccess ? data?.data : [],
       updateMyData: onChange,
       initialState: {
         pageIndex: queryPageIndex,
@@ -139,7 +139,7 @@ export default function Table({ columns, query, onChange = undefined }) {
 
   return (
     <>
-      {!isSuccess ? null : (
+      {!isSuccess && !data ? null : (
         <>
           <table {...getTableProps()}>
             <Head headerGroups={headerGroups} />
@@ -191,7 +191,7 @@ const formattingHandler = {
 function Body({ getTableBodyProps, page, prepareRow, onChange }) {
   return (
     <tbody {...getTableBodyProps()}>
-      {page.map((row, rowIndex) => {
+      {page?.map((row, rowIndex) => {
         prepareRow(row);
         return (
           <tr key={rowIndex} {...row.getRowProps()}>

@@ -8,10 +8,6 @@
   --primary-color: #118c4f;
 }
 
-body {
-  @apply bg-orange-200;
-}
-
 .nav-area {
   display: flex;
   align-items: center;
