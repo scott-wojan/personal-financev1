@@ -28,12 +28,12 @@ ChartJS.register(
 export const options = {
   responsive: true,
   plugins: {
-    title: {
-      display: true,
-      text: "Income vs. Expenses",
-    },
+    // title: {
+    //   display: true,
+    //   text: "Income vs. Expenses",
+    // },
     legend: {
-      position: "top",
+      position: "bottom",
     },
   },
   scales: {
@@ -76,8 +76,6 @@ const expenseData = [
   -36907.89, -17414.69, -30716.21, -105045.59, -28717.66, -13112.9, -10205.87,
   -15243.04, -14982.26, -12700.08, -9840.73, -18641.12,
 ];
-
-console.log(incomeData, expenseData);
 
 const diff = incomeData.map((data, index) => {
   return incomeData[index] + expenseData[index];

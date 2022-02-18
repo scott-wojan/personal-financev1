@@ -10,6 +10,8 @@ CREATE EXTENSION tablefunc;
 CREATE EXTENSION citext;
 
 
+
+
 CREATE TABLE IF NOT EXISTS users
 (
   id SERIAL PRIMARY KEY,
@@ -18,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users
   updated_at timestamptz default now()
 );
 
--- insert into users(email) values('test@test.com')
+insert into users(email) values('test@test.com')
 
 
 
@@ -34,7 +36,7 @@ CREATE TABLE IF NOT EXISTS institutions
 );
 
 -- insert into institutions(id,name) values('usaa','USAA')
-
+insert into institutions(id,name) values('capital_one','Capital One')
 
 CREATE TABLE IF NOT EXISTS accounts
 (
@@ -55,8 +57,18 @@ CREATE TABLE IF NOT EXISTS accounts
     institution_id citext REFERENCES institutions(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- INSERT INTO public.accounts(id, access_token, name, mask, official_name, current_balance, available_balance, iso_currency_code, account_limit, type, subtype, user_id, institution_id) 
--- VALUES ('usaa_checking', '12345', 'USAA Checking', '9901', 'USAA Super Checking', null, null, 'USA', null, 'depository', 'checking', 1, 'usaa');
+-- INSERT INTO accounts(id, access_token, name, mask, official_name, current_balance, available_balance, iso_currency_code, account_limit, type, subtype, user_id, institution_id) 
+-- VALUES ('usaa_checking', '12345', 'USAA Checking', '9872', 'USAA Super Checking', null, null, 'USA', null, 'depository', 'checking', 1, 'usaa');
+
+-- INSERT INTO accounts(id, access_token, name, mask, official_name, current_balance, available_balance, iso_currency_code, account_limit, type, subtype, user_id, institution_id) 
+-- VALUES ('usaa_savings', '67890', 'USAA Savings', '9864', 'USAA Super Sacubgs', null, null, 'USA', null, 'depository', 'savings', 1, 'usaa');
+
+-- INSERT INTO accounts(id, access_token, name, mask, official_name, current_balance, available_balance, iso_currency_code, account_limit, type, subtype, user_id, institution_id) 
+-- VALUES ('credit_card1', '4325', 'Capital One Venture One', '1036', 'Capital One Venture One', null, null, 'USA', null, 'credit', 'credit card', 1, 'capital_one');
+
+-- INSERT INTO accounts(id, access_token, name, mask, official_name, current_balance, available_balance, iso_currency_code, account_limit, type, subtype, user_id, institution_id) 
+-- VALUES ('credit_card2', '6334', 'Capital One Venture One', '3381', 'Capital One Venture One', null, null, 'USA', null, 'credit', 'credit card', 1, 'capital_one');
+
 
 CREATE TABLE transactions
 (
@@ -94,6 +106,201 @@ CREATE TABLE transactions
     updated_at timestamp with time zone DEFAULT now()
 );
 
+CREATE FUNCTION set_transaction_values() RETURNS trigger AS $$
+  BEGIN
+    NEW.month := EXTRACT(MONTH FROM NEW.date);
+    NEW.year := EXTRACT(YEAR FROM NEW.date);
+    NEW.subcategory :=COALESCE(NEW.subcategory, NEW.category || ' General', NEW.subcategory);
+    RETURN NEW;
+  END
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER transactions_set_transaction_values
+BEFORE INSERT OR UPDATE ON transactions
+FOR EACH ROW EXECUTE PROCEDURE set_transaction_values();
+
+
+
+
+
+select income, expenses, income + expenses as net
+  from (
+        select sum(case when amount > 0  then amount else 0 end) AS income,
+               sum(case when amount < 0 and category != 'Investment'  then amount else 0 end) AS expenses   
+          from transactions
+         where year = 2021 
+	       and month between 1 and 12
+         group by year, month
+        order by month
+) as spending
+
+
+
+
+
+WITH spending AS (
+ SELECT * FROM crosstab(
+     $$ select category || '>' || subcategory,
+	           to_char(date, 'mon'), 
+	           round(sum(amount),2) AS total
+          from transactions
+         inner join accounts on accounts.id = transactions.account_id
+	     where user_id = 1
+	       and year = 2021
+	       and month between 1 and 12
+         group by category,subcategory,2
+         order by 1,2 
+	 $$
+    ,$$VALUES ('jan'), ('feb'), ('mar'), ('apr'), ('may'), ('jun'), ('jul'), ('aug'), ('sep'), ('oct'), ('nov'), ('dec')$$
+   )
+ AS ct (category citext, jan numeric(28,2), feb numeric(28,2), mar numeric(28,2), apr numeric(28,2), may numeric(28,2), jun numeric(28,2), jul numeric(28,2), aug numeric(28,2), sep numeric(28,2), oct numeric(28,2), nov numeric(28,2), dec numeric(28,2))	
+)
+SELECT 
+    (regexp_split_to_array(category, '>'))[1] as category, 
+    (regexp_split_to_array(category, '>'))[2] as subcategory, 
+    COALESCE(jan, 0) jan,
+    COALESCE(feb, 0) feb,
+    COALESCE(mar, 0) mar,
+    COALESCE(apr, 0) apr,
+    COALESCE(may, 0) may,
+    COALESCE(jun, 0) jun,
+    COALESCE(jul, 0) jul,
+    COALESCE(aug, 0) aug,
+    COALESCE(sep, 0) sep,
+    COALESCE(oct, 0) oct,
+    COALESCE(nov, 0) nov,
+    COALESCE(dec, 0) dec,
+	round((
+		COALESCE(jan, 0) +
+		COALESCE(feb, 0) +
+		COALESCE(mar, 0) +
+		COALESCE(apr, 0) +
+		COALESCE(may, 0) +
+		COALESCE(jun, 0) +
+		COALESCE(jul, 0) +
+		COALESCE(aug, 0) +
+		COALESCE(sep, 0) +
+		COALESCE(oct, 0) +
+		COALESCE(nov, 0) +
+		COALESCE(dec, 0)		
+	)/12,2) as yearly_average
+FROM spending;
+
+
+select category, 
+       subcategory,
+       round(min(total),2) min, 
+	     round(max(total),2) max,
+	     round(avg(total),2) avg
+from(
+	 select
+	    year,
+	    month,
+		category,
+		subcategory,
+		sum(case when amount <0 then amount*-1 else amount end) as total
+	   from transactions
+	  inner join accounts on accounts.id = transactions.account_id
+	  where user_id = 1
+		and year between 2021 and 2021
+		and month between 1 and 12
+      group by 1,2,3,4
+	  order by 3,4
+)t
+GROUP BY category,subcategory
+ORDER BY category,subcategory;
+
+
+
+
+
+
+
+
+
+
+
+select series,category,subcategory,total 
+  from generate_series(1,12) as series
+  left join
+(
+  select month,category,subcategory,total
+    from user_transactions
+   where user_id = 1
+     and year between 2021 and 2021
+     and month between 1 and 12  
+     and category = 'Auto & Transportation' 
+     and subcategory = 'Insurance'
+)  as spend on spend.month=series
+
+
+
+
+
+select category,subcategory, sum(min) min, sum(max) max, sum(avg) avg
+from (
+select category,
+       subcategory,
+       round(max(total),2) min,	   
+       round(min(total),2) max, 
+       round(avg(total),2) avg
+from(
+select months.month,user_categories.category,user_categories.subcategory, coalesce(round(sum(t.amount),2),0) as total
+  from generate_series(1,12) as months(month)
+ cross join (
+   select t.category,t.subcategory
+     from transactions t
+    inner join accounts a on a.id = t.account_id
+    where a.user_id = 1
+	  and t.year = 2021
+	 and month between 1 and 12
+	 and amount < 0
+    group by t.category,t.subcategory
+    order by t.category,t.subcategory
+) as user_categories
+left join transactions t on t.month = months.month and t.category = user_categories.category and t.subcategory=user_categories.subcategory and amount < 0
+group by months.month,user_categories.category,user_categories.subcategory
+)t
+GROUP BY category,subcategory
+
+UNION 
+
+select category,
+       subcategory,
+       round(min(total),2) min, 
+	   round(max(total),2) max,	   
+       round(avg(total),2) avg
+from(
+select months.month,user_categories.category,user_categories.subcategory, coalesce(round(sum(t.amount),2),0) as total
+  from generate_series(1,12) as months(month)
+ cross join (
+   select t.category,t.subcategory
+     from transactions t
+    inner join accounts a on a.id = t.account_id
+    where a.user_id = 1
+	  and t.year = 2021
+	 and month between 1 and 12
+	 and amount > 0
+    group by t.category,t.subcategory
+    order by t.category,t.subcategory
+) as user_categories
+left join transactions t on t.month = months.month and t.category = user_categories.category and t.subcategory=user_categories.subcategory and amount > 0
+group by months.month,user_categories.category,user_categories.subcategory
+order by months.month,user_categories.category,user_categories.subcategory
+)t
+GROUP BY category,subcategory
+
+) as ledger
+GROUP BY category,subcategory
+ORDER BY category,subcategory
+;
+
+
+
+
+
+
 
 
 
@@ -113,42 +320,6 @@ CREATE TABLE IF NOT EXISTS categories
 
 
 
-CREATE TABLE transactions
-(
-    id text PRIMARY KEY,
-    account_id text REFERENCES accounts(id) ON DELETE CASCADE,
-    amount numeric(28,10),
-    iso_currency_code text,
-    imported_category_id text,
-    imported_category text,
-    imported_subcategory text,
-    imported_name text,
-    category text,
-    subcategory text,
-    name text,
-    check_number text,
-    date date,
-    month integer,
-    year integer,
-    authorized_date date,
-    address text,
-    city text,
-    region text,
-    postal_code text,
-    country text,
-    lat double precision,
-    lon double precision,
-    store_number text,
-    merchant_name text,
-    payment_channel text,
-    is_pending boolean,
-    type text,
-    transaction_code text,
-    is_recurring boolean,
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now()
-);
-
 CREATE TABLE IF NOT EXISTS user_institutions
 (
     item_id text NOT NULL PRIMARY KEY,
@@ -160,19 +331,7 @@ CREATE TABLE IF NOT EXISTS user_institutions
 );
 
 
-CREATE FUNCTION set_transaction_values() RETURNS trigger AS $$
-  BEGIN
-    NEW.month := EXTRACT(MONTH FROM NEW.date);
-    NEW.year := EXTRACT(YEAR FROM NEW.date);
-    NEW.subcategory :=COALESCE(NEW.subcategory, NEW.category || ' General', NEW.subcategory);
-    RETURN NEW;
-  END
-$$ LANGUAGE plpgsql;
 
-
-CREATE TRIGGER transactions_set_transaction_values
-BEFORE INSERT OR UPDATE ON transactions
-FOR EACH ROW EXECUTE PROCEDURE set_transaction_values();
 
 
 CREATE OR REPLACE FUNCTION GetSpendingByCategory(userId integer, startDate date, endDate date)
@@ -193,7 +352,6 @@ RETURN QUERY select t.category, sum(t.amount) as amount
  GROUP BY t.category;
 END; $$ 
 LANGUAGE 'plpgsql';
-
 
 
 
