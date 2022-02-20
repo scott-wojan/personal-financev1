@@ -24,22 +24,17 @@ const saveCategories = async (categories) => {
     const sql = `
     INSERT INTO categories
       (
-        id,
         category,
         subcategory
       )
-    VALUES ($1, $2, $3)
-    ON CONFLICT (id)
+    VALUES ($1, $2)
+    ON CONFLICT (category,subcategory)
     DO UPDATE SET
-      category=$2,
-      subcategory=$3
+      category=$1,
+      subcategory=$2
   `;
 
-    await db.save(sql, [
-      category.category_id,
-      categoryName ?? null,
-      categorySub ?? null,
-    ]);
+    await db.save(sql, [categoryName ?? null, categorySub ?? "Other"]);
   });
 
   try {
