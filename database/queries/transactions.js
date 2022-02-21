@@ -178,7 +178,7 @@ const getAccountTransactionsByDateRange = async (
   const _db = new Database();
   try {
     const rows = await _db.getAll(
-      `select * from GetAccountTransactionsByDateRange($1,$2,$3,$4,$5,$6)`,
+      `select * from get_account_transactions_by_daterange($1,$2,$3,$4,$5,$6)`,
       [user_id, account_id, startdate, enddate, offset, limit]
     );
     return rows[0];

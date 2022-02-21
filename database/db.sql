@@ -715,7 +715,7 @@ RETURN QUERY
 END; $$ 
 LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE FUNCTION GetAccountTransactionsByDateRange(userId integer, accountId text, startDate date, endDate date, off_set integer, limitBy integer)
+CREATE OR REPLACE FUNCTION get_account_transactions_by_daterange(userId integer, accountId text, startDate date, endDate date, off_set integer, limitBy integer)
 RETURNS TABLE (
  total bigint,
  data json	

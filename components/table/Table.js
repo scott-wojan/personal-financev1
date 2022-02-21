@@ -7,12 +7,6 @@ import DefaultCell from "./DefaultCell";
 import Icon from "../Icon";
 import { editableComponents } from "../editable";
 
-const initialState = {
-  queryPageIndex: 0,
-  queryPageSize: 10,
-  totalCount: null,
-};
-
 const PAGE_CHANGED = "PAGE_CHANGED";
 const PAGE_SIZE_CHANGED = "PAGE_SIZE_CHANGED";
 const TOTAL_COUNT_CHANGED = "TOTAL_COUNT_CHANGED";
@@ -39,7 +33,18 @@ const reducer = (state, { type, payload }) => {
   }
 };
 
-export default function Table({ columns, query, onChange = undefined }) {
+export default function Table({
+  columns,
+  query,
+  onChange = undefined,
+  pagingSettings = undefined,
+}) {
+  const initialState = {
+    queryPageIndex: pagingSettings?.page ?? 0,
+    queryPageSize: pagingSettings?.pageSize ?? 10,
+    totalCount: null,
+  };
+
   const [{ queryPageIndex, queryPageSize, totalCount }, dispatch] = useReducer(
     reducer,
     initialState
@@ -145,20 +150,22 @@ export default function Table({ columns, query, onChange = undefined }) {
             <Head headerGroups={headerGroups} />
             <Body {...{ getTableBodyProps, page, prepareRow, onChange }} />
           </table>
-          <Pagination
-            {...{
-              pageSize,
-              setPageSize,
-              gotoPage,
-              canPreviousPage,
-              previousPage,
-              pageIndex,
-              pageOptions,
-              nextPage,
-              canNextPage,
-              pageCount,
-            }}
-          />
+          {pagingSettings && (
+            <Pagination
+              {...{
+                pageSize,
+                setPageSize,
+                gotoPage,
+                canPreviousPage,
+                previousPage,
+                pageIndex,
+                pageOptions,
+                nextPage,
+                canNextPage,
+                pageCount,
+              }}
+            />
+          )}
         </>
       )}
     </>
