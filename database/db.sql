@@ -185,14 +185,47 @@ CREATE TABLE IF NOT EXISTS user_rules
   set_value citext not null
 ); 
 CREATE UNIQUE INDEX user_rules_uidx ON user_rules(user_id, match_column_name, match_condition, match_value);
+-- -- starts with
+-- select * from transactions
+-- where imported_name ~* '^grub.*$';
+
+-- -- ends with
+-- select * from transactions
+-- where imported_name ~* '.*pharmacy$'
+
+-- -- contains
+-- select * from transactions
+-- where imported_name ~* '.*life.*$'
+
+-- --equals
+-- select * from transactions
+-- where imported_name ~* '^COSERV ELECTRIC$'
 
 
 
+CREATE OR REPLACE FUNCTION update_transactions(
+	userId integer, 
+	match_column_name citext, 
+	match_condition citext, 
+	match_value citext, 
+	set_column_name citext,
+	set_value citext)
+  RETURNS VOID AS
+  $$
+  DECLARE update_statement TEXT := format('UPDATE transactions SET %s = ''%s'' WHERE user_id = %s and %s %s ''%s'' ',
+										  set_column_name, set_value, userId,match_column_name,match_condition,match_value);
+
+  BEGIN
+    -- RAISE NOTICE 'sql: %', update_statement;
+    EXECUTE update_statement;
+  END;
+$$ LANGUAGE plpgsql; 
 
 CREATE OR REPLACE FUNCTION update_user_transactions(userId integer)
-RETURNS void
+RETURNS text
 AS $$
 BEGIN
+-- user categorues
   update transactions
     set category = uc.user_category ,
         subcategory = uc.user_subcategory
@@ -201,6 +234,11 @@ BEGIN
     and uc.user_id = userId
     and transactions.imported_category = uc.category
     and transactions.imported_subcategory = uc.subcategory;
+-- rules
+RETURN(select update_transactions(1,match_column_name,match_condition,match_value,set_column_name,set_value)
+  from user_rules
+ where user_id=userId
+);
 END; $$ 
 LANGUAGE 'plpgsql';
 
@@ -283,7 +321,7 @@ $BODY$;
 --   and transactions.subcategory = uc.subcategory
 
 
-CREATE OR REPLACE FUNCTION GetSpendingMetricsByCategoryAndSubcategory(
+CREATE OR REPLACE FUNCTION get_spending_metrics_by_category_subcategory(
   userId integer,
   startYear integer,
   startMonth integer,
