@@ -136,7 +136,6 @@ CREATE TYPE plaid_transaction_import as (
 );
 
 
-
 -- CREATE FUNCTION set_transaction_values() RETURNS trigger AS $$
 --   BEGIN
 --     NEW.month := EXTRACT(MONTH FROM NEW.date);
@@ -255,7 +254,7 @@ BEGIN
 with transaction_json (doc) as (values($2))
 insert into transactions(
 	id,
-    user_id,
+  user_id,
 	account_id,
 	amount,
 	authorized_date,
