@@ -153,24 +153,23 @@ CREATE TYPE plaid_transaction_import as (
 
 CREATE TABLE IF NOT EXISTS categories
 (
-  id SERIAL PRIMARY KEY,
-  category text,
-  subcategory text
+  id text PRIMARY KEY,
+  category citext,
+  subcategory citext
 );
-
-CREATE UNIQUE INDEX categories_uidx ON categories(category, subcategory);
+CREATE UNIQUE INDEX categories_uidx ON categories(id, category, subcategory);
 
 
 CREATE TABLE IF NOT EXISTS user_categories
 (
   id SERIAL PRIMARY KEY,
   user_id integer references users(id) on delete cascade on update cascade,
-  category citext not null,
-  subcategory citext,
-  user_category citext not null,
+  import_category citext not null,
+  import_subcategory citext  not null,
+  user_category citext,
   user_subcategory citext
 );
-CREATE UNIQUE INDEX user_categories_uidx ON user_categories(user_id, category, subcategory);
+CREATE UNIQUE INDEX user_categories_uidx ON user_categories(user_id, import_category, import_subcategory);
 
 
 CREATE TABLE IF NOT EXISTS user_rules
@@ -224,7 +223,7 @@ CREATE OR REPLACE FUNCTION update_user_transactions(userId integer)
 RETURNS text
 AS $$
 BEGIN
--- user categorues
+  -- update transactions to user defined categories
   update transactions
     set category = uc.user_category ,
         subcategory = uc.user_subcategory
@@ -233,6 +232,14 @@ BEGIN
     and uc.user_id = userId
     and transactions.imported_category = uc.category
     and transactions.imported_subcategory = uc.subcategory;
+
+  -- add user categories that don't exist
+  insert into user_categories(user_id,import_category,import_subcategory,user_category,user_subcategory)
+  select distinct user_id, imported_category, imported_subcategory, imported_category, imported_subcategory
+    from transactions
+   where user_id = userId
+      on conflict do nothing;
+
 -- rules
 RETURN(select update_transactions(1,match_column_name,match_condition,match_value,set_column_name,set_value)
   from user_rules
@@ -624,6 +631,7 @@ RETURN QUERY
 END; $$ 
 LANGUAGE 'plpgsql';
 
+--http://johnatten.com/2015/04/22/use-postgres-json-type-and-aggregate-functions-to-map-relational-data-to-json/
 
 CREATE OR REPLACE FUNCTION GetTransactions(userId integer, page integer)
 RETURNS TABLE (
