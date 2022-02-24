@@ -129,6 +129,7 @@ const getTransactionsByDateRange = async (
   user_id,
   startdate,
   enddate,
+  page = 0,
   offset = 0,
   limit = 10
 ) => {

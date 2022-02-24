@@ -167,7 +167,8 @@ CREATE TABLE IF NOT EXISTS user_categories
   import_category citext not null,
   import_subcategory citext  not null,
   user_category citext,
-  user_subcategory citext
+  user_subcategory citext,
+  budgeted_amount numeric(28,10)
 );
 CREATE UNIQUE INDEX user_categories_uidx ON user_categories(user_id, import_category, import_subcategory);
 
@@ -219,6 +220,13 @@ CREATE OR REPLACE FUNCTION update_transactions(
   END;
 $$ LANGUAGE plpgsql; 
 
+-- insert into user_categories(user_id,import_category,import_subcategory,user_category,user_subcategory)
+-- select distinct user_id, imported_category, imported_subcategory, category, subcategory 
+--   from transactions
+--  where user_id = 1
+--  order by category, subcategory
+-- on conflict do nothing;
+
 CREATE OR REPLACE FUNCTION update_user_transactions(userId integer)
 RETURNS text
 AS $$
@@ -240,11 +248,11 @@ BEGIN
    where user_id = userId
       on conflict do nothing;
 
--- rules
-RETURN(select update_transactions(1,match_column_name,match_condition,match_value,set_column_name,set_value)
-  from user_rules
- where user_id=userId
-);
+  -- rules
+  RETURN(select update_transactions(userId,match_column_name,match_condition,match_value,set_column_name,set_value)
+    from user_rules
+  where user_id=userId
+  );
 END; $$ 
 LANGUAGE 'plpgsql';
 

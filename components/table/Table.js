@@ -4,14 +4,17 @@ import { useFlexLayout, usePagination, useSortBy, useTable } from "react-table";
 import { useQuery } from "react-query";
 import { Pagination } from "./Pagination";
 import DefaultCell from "./DefaultCell";
-import Icon from "../Icon";
 import { editableComponents } from "../editable";
+import axios from "axios";
+import { Head } from "./Head";
+import { Body } from "./Body";
 
 const PAGE_CHANGED = "PAGE_CHANGED";
 const PAGE_SIZE_CHANGED = "PAGE_SIZE_CHANGED";
 const TOTAL_COUNT_CHANGED = "TOTAL_COUNT_CHANGED";
 
 const reducer = (state, { type, payload }) => {
+  console.log("reducer type/payload: ", type, payload);
   switch (type) {
     case PAGE_CHANGED:
       return {
@@ -33,44 +36,57 @@ const reducer = (state, { type, payload }) => {
   }
 };
 
+async function callApi(endpoint, payload) {
+  try {
+    const response = await axios.post(endpoint, payload);
+    const data = await response;
+    return data.data;
+  } catch (e) {
+    throw new Error(`Table API error:${e?.message}`);
+  }
+}
+
 export default function Table({
   columns,
   query,
   onChange = undefined,
-  pagingSettings = undefined,
+  pagingSettings = {
+    page: 0,
+    pageSize: 10,
+  },
 }) {
+  processColumns(columns);
+
   const initialState = {
-    queryPageIndex: pagingSettings?.page ?? 0,
-    queryPageSize: pagingSettings?.pageSize ?? 10,
+    queryPageIndex: pagingSettings?.page,
+    queryPageSize: pagingSettings?.pageSize,
     totalCount: null,
   };
+
+  // console.log("initialState", initialState);
 
   const [{ queryPageIndex, queryPageSize, totalCount }, dispatch] = useReducer(
     reducer,
     initialState
   );
 
-  columns?.forEach((column) => {
-    // if a cell was defined, use it
-    if (column.Cell) {
-      return;
-    }
-    //If it's marked as editable, get that control
-    if (
-      column.isEditable &&
-      column.dataType &&
-      editableComponents.has(column.dataType)
-    ) {
-      column.Cell = editableComponents.get(column.dataType);
-      return;
-    }
-    //otherwise use the default cell
-    column.Cell = DefaultCell;
-  });
+  // console.log("after reducer", { queryPageIndex, queryPageSize });
+
+  const functionParams = {
+    page: queryPageIndex,
+    pageSize: queryPageSize,
+    ...query.parameters,
+  };
+
+  // console.log("functionParams", functionParams);
 
   const { isLoading, error, data, isSuccess } = useQuery(
-    [query.name, queryPageIndex, queryPageSize],
-    () => query.function(queryPageIndex, queryPageSize, ...query.params),
+    [query.api, queryPageIndex, queryPageSize],
+    () =>
+      callApi(query.api, {
+        ...functionParams,
+      }),
+
     {
       keepPreviousData: true,
       staleTime: Infinity,
@@ -172,93 +188,22 @@ export default function Table({
   );
 }
 
-const formattingHandler = {
-  get: function (target, prop, receiver) {
-    if (prop === "settings") {
-      const settings = Object.keys(target.settings).map((propertyName) => {
-        const propertyValue = target.settings[propertyName];
-        if (typeof propertyValue === "function") {
-          return {
-            [propertyName]: propertyValue(target.data),
-          };
-        }
-        return {
-          [propertyName]: propertyValue,
-        };
-      })?.[0];
-
-      return settings;
+function processColumns(columns) {
+  columns?.forEach((column) => {
+    // if a cell was defined, use it
+    if (column.Cell) {
+      return;
     }
-    1;
-    // @ts-ignore
-    return Reflect.get(...arguments);
-  },
-};
-
-function Body({ getTableBodyProps, page, prepareRow, onChange }) {
-  return (
-    <tbody {...getTableBodyProps()}>
-      {page?.map((row, rowIndex) => {
-        prepareRow(row);
-        return (
-          <tr key={rowIndex} {...row.getRowProps()}>
-            {row.cells.map((cell, columnId) => {
-              // if (cell.column.Header === "Category") {
-              //   console.log(cell, columnId);
-              // }
-
-              return (
-                <td key={columnId} {...cell.getCellProps()}>
-                  {cell.render("Cell", {
-                    onChange: (newValue, oldValue) => {
-                      onChange?.(cell.row, cell.column.id, newValue, oldValue);
-                    },
-                    options: cell.column.options,
-                    formatting:
-                      cell.column.formatting &&
-                      new Proxy(
-                        { ...cell.column.formatting, data: cell.row.values },
-                        formattingHandler
-                      ),
-                  })}
-                </td>
-              );
-            })}
-          </tr>
-        );
-      })}
-    </tbody>
-  );
-}
-
-function Head({ headerGroups }) {
-  return (
-    <thead>
-      {headerGroups.map((headerGroup, index) => (
-        <tr key={index} {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((column, index) => (
-            <th
-              key={index}
-              {...column.getHeaderProps(column.getSortByToggleProps())}
-            >
-              {column.render("Header")}
-              {
-                <>
-                  {column.isSorted ? (
-                    column.isSortedDesc ? (
-                      <Icon name="caret-down-outline" />
-                    ) : (
-                      <Icon name="caret-up-outline" />
-                    )
-                  ) : (
-                    ""
-                  )}
-                </>
-              }
-            </th>
-          ))}
-        </tr>
-      ))}
-    </thead>
-  );
+    //If it's marked as editable, get that control
+    if (
+      column.isEditable &&
+      column.dataType &&
+      editableComponents.has(column.dataType)
+    ) {
+      column.Cell = editableComponents.get(column.dataType);
+      return;
+    }
+    //otherwise use the default cell
+    column.Cell = DefaultCell;
+  });
 }

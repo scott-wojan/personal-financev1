@@ -5,7 +5,6 @@ import Dropdown from "components/inputs/Dropdown";
 import Menu from "components/navigation/Menu";
 import { categories } from "data/categories";
 import { fetchPokemonData } from "queries/fetchPokemonData";
-import { fetchTransactionData } from "queries/fetchTransactionData";
 import React, { useEffect, useRef, useState } from "react";
 import DoughnutChart from "../components/charts/DoughnutChart";
 import StackedBarChart from "../components/charts/StackedBarChart";
@@ -31,7 +30,7 @@ export default function AppHome() {
   const columns = React.useMemo(
     () => [
       {
-        Header: "Category",
+        Header: "Date",
         accessor: "date", // accessor is the "key" in the data
         dataType: "date",
         // isEditable: true,
@@ -138,11 +137,14 @@ export default function AppHome() {
       <Table
         columns={columns}
         onChange={onChange}
-        pagingSettings={{ page: 0, pageSize: 10 }}
+        // pagingSettings={{ page: 10, pageSize: 10 }}
         query={{
-          name: "transactions",
-          function: fetchTransactionData,
-          params: ["usaa_checking", "2019-01-01", "2022-01-01"],
+          api: "/api/transactions",
+          parameters: {
+            accountId: "usaa_checking",
+            startDate: "2019-01-01",
+            endDate: "2022-01-01",
+          },
         }}
       />
 

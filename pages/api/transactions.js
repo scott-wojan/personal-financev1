@@ -9,17 +9,17 @@ import {
 
 export default async function handler(req, res) {
   const user = getUserFromCookie(req, res);
-  const { accountId, startDate, endDate, limit } = req.body;
-  let { offset } = req.body;
-  if (offset < 1) offset = 1;
+  const { accountId, startDate, endDate, page, pageSize } = req.body;
+  const offset = page * pageSize;
 
-  console.log({
+  console.log("API Transactions", {
     userId: user.id,
     accountId,
     startDate,
     endDate,
-    limit,
     offset,
+    page,
+    pageSize,
   });
 
   try {
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         user,
         accountId,
         offset,
-        limit
+        pageSize
       );
     } else {
       transactions = await getTransactionsForApi(
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         endDate,
         user,
         offset,
-        limit
+        pageSize
       );
     }
 
@@ -50,14 +50,20 @@ export default async function handler(req, res) {
     res.status(400).json(error.response);
   }
 }
-async function getTransactionsForApi(startDate, endDate, user, offset, limit) {
+async function getTransactionsForApi(
+  startDate,
+  endDate,
+  user,
+  offset,
+  pageSize
+) {
   return startDate && endDate
     ? await getTransactionsByDateRange(
         user.id,
         startDate,
         endDate,
         offset,
-        limit
+        pageSize
       )
     : await getTransactions(user.id, offset);
 }
@@ -68,7 +74,7 @@ async function getAccountTransactionsForApi(
   user,
   accountId,
   offset,
-  limit
+  pageSize
 ) {
   if (startDate && endDate) {
     return await await getAccountTransactionsByDateRange(
@@ -77,7 +83,7 @@ async function getAccountTransactionsForApi(
       startDate,
       endDate,
       offset,
-      limit
+      pageSize
     );
   }
   return getAccountTransactions(user.id, accountId);
@@ -88,7 +94,7 @@ async function getAccountTransactionsForApi(
   //       startDate,
   //       endDate,
   //       offset,
-  //       limit
+  //       pageSize
   //     )
   //   : await getAccountTransactions(user.id, accountId);
 }
