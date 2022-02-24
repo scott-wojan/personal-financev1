@@ -9,6 +9,7 @@ export default function CategoriesSelect({
   const [newValue, setNewValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
   const onSelect = (option) => {
+    console.log("option", option);
     setNewValue(option.title);
     setIsEditing(false);
     onChange?.(option, value);

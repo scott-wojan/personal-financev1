@@ -748,7 +748,7 @@ RETURN QUERY
     ) as count, 
     (SELECT json_agg(t.*) 
        FROM (
-           SELECT t.id, t.date, t.name, t.amount, t.category, t.subcategory, t.iso_currency_code
+           select t.id, t.date, a.name account, t.name, t.category as category, t.subcategory as subcategory, t.amount, t.iso_currency_code
 		     FROM transactions t
 	        INNER JOIN accounts a on a.id = t.account_id		   
 		   	WHERE a.user_id = userId

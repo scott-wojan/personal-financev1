@@ -12,15 +12,15 @@ export default async function handler(req, res) {
   const { accountId, startDate, endDate, page, pageSize } = req.body;
   const offset = page * pageSize;
 
-  console.log("API Transactions", {
-    userId: user.id,
-    accountId,
-    startDate,
-    endDate,
-    offset,
-    page,
-    pageSize,
-  });
+  // console.log("API Transactions", {
+  //   userId: user.id,
+  //   accountId,
+  //   startDate,
+  //   endDate,
+  //   offset,
+  //   page,
+  //   pageSize,
+  // });
 
   try {
     if (!user) return res.status(401).json();

@@ -17,7 +17,7 @@ export default function AppHome() {
   const onChange = (row, propertyName, newValue, oldValue) => {
     if (propertyName === "category") {
       console.log(
-        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue.id}' for '${row.values.id}'`,
+        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue.title}' for '${row.values.id}'`,
         row
       );
     } else
@@ -40,6 +40,10 @@ export default function AppHome() {
         // Cell: ({ value }) => {
         //   return formatDate(value);
         // },
+      },
+      {
+        Header: "Account",
+        accessor: "account",
       },
       {
         Header: "Name",
@@ -70,6 +74,10 @@ export default function AppHome() {
             />
           );
         },
+      },
+      {
+        Header: "Sub Category",
+        accessor: "subcategory",
       },
       {
         Header: "Amount",
@@ -124,7 +132,8 @@ export default function AppHome() {
           </div>
         </div>
       </div> */}
-      {/* <div className="flex flex-col">
+      {/* 
+      <div className="flex flex-col">
         <CategoriesSelect
           menuItems={categories}
           initialValue={value}
@@ -133,7 +142,8 @@ export default function AppHome() {
             setValue(x.title);
           }}
         />
-      </div> */}
+      </div> 
+      */}
       <Table
         columns={columns}
         onChange={onChange}
