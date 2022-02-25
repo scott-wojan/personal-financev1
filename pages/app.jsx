@@ -1,4 +1,4 @@
-import CategoriesSelect from "components/inputs/CategoriesSelect";
+import CategoriesDropdown from "components/inputs/CategoriesDropdown";
 import DateInput from "components/inputs/DateInput";
 import DateRangeInput from "components/inputs/DateRangeInput";
 import Dropdown from "components/inputs/Dropdown";
@@ -14,153 +14,7 @@ import Page from "../components/Page";
 import Table from "../components/table/Table";
 
 export default function AppHome() {
-  const onChange = (row, propertyName, newValue, oldValue) => {
-    if (propertyName === "category") {
-      console.log(
-        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue.title}' for '${row.values.id}'`,
-        row
-      );
-    } else
-      console.log(
-        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.values.id}'`,
-        row
-      );
-  };
-
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: "Date",
-        accessor: "date", // accessor is the "key" in the data
-        dataType: "date",
-        // isEditable: true,
-        // width: 150,
-        // maxWidth: 150,
-        // minWidth: 150,
-        // Cell: ({ value }) => {
-        //   return formatDate(value);
-        // },
-      },
-      {
-        Header: "Account",
-        accessor: "account",
-      },
-      {
-        Header: "Name",
-        accessor: "name",
-        dataType: "text",
-        // width: 400,
-        // minWidth: 400,
-        // maxWidth: 400,
-        isEditable: true,
-        // Cell: ({ value }) => {
-        //   return value;
-        // },
-      },
-      {
-        Header: "Category",
-        accessor: "category",
-        // options,
-        // width: 250,
-        // maxWidth: 250,
-        // minWidth: 250,
-        isEditable: true,
-        Cell: ({ value, onChange }) => {
-          return (
-            <CategoriesSelect
-              options={categories}
-              value={value}
-              onChange={onChange}
-            />
-          );
-        },
-      },
-      {
-        Header: "Sub Category",
-        accessor: "subcategory",
-      },
-      {
-        Header: "Amount",
-        accessor: "amount",
-        dataType: "text",
-        // isEditable: true,
-        // width: 200,
-        // maxWidth: 200,
-        // minWidth: 200,
-        formatting: {
-          type: "currency",
-          settings: {
-            currencyCode: (x) => x.iso_currency_code,
-          },
-        },
-      },
-      {
-        Header: "Currency Code",
-        accessor: "iso_currency_code",
-        isEditable: true,
-        show: false,
-      },
-      {
-        Header: "Id",
-        accessor: "id",
-        isEditable: true,
-        show: false,
-      },
-    ],
-    []
-  );
-  return (
-    <Page
-      left={
-        <SideBar
-          top={<div>Top</div>}
-          bottom={<div>Bottom</div>}
-          links={mainLinks}
-          onItemClick={(link) => {
-            console.log(link);
-          }}
-        />
-      }
-    >
-      {/* <div className="w-96">
-        <div className="relative inline-block">
-          <input type="text" id="input-field" />
-          <div className="absolute w-full ">
-            <Menu orientation="vertical" />
-            <br />
-            <Menu />
-          </div>
-        </div>
-      </div> */}
-      {/* 
-      <div className="flex flex-col">
-        <CategoriesSelect
-          menuItems={categories}
-          initialValue={value}
-          onChange={(x) => {
-            console.log("CategoriesSelect:onChange", x);
-            setValue(x.title);
-          }}
-        />
-      </div> 
-      */}
-      <Table
-        columns={columns}
-        onChange={onChange}
-        // pagingSettings={{ page: 10, pageSize: 10 }}
-        query={{
-          api: "/api/transactions",
-          parameters: {
-            accountId: "usaa_checking",
-            startDate: "2019-01-01",
-            endDate: "2022-01-01",
-          },
-        }}
-      />
-
-      {/* <CashFlow /> */}
-    </Page>
-  );
+  return <TransactionsTable />;
 }
 
 const mainLinks = [
@@ -227,5 +81,216 @@ function CashFlow() {
         {/* <DoughnutChart /> */}
       </div>
     </div>
+  );
+}
+
+function TransactionsTable() {
+  const [cats, setCats] = useState(
+    // @ts-ignore
+    [...new Set(categories.map((item) => item.category))].map((x) => {
+      return { text: x };
+    })
+  );
+
+  const [subCats, setSubCats] = useState([]);
+  const [selectedCat, setSelectedCat] = useState();
+
+  const onChange = (row, propertyName, newValue, oldValue) => {
+    if (propertyName === "subcategory") {
+      console.log(
+        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue.title}' for '${row.values.id}'`,
+        row
+      );
+    } else {
+      row.values[propertyName] = newValue;
+      console.log(
+        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.values.id}'`,
+        row
+      );
+    }
+  };
+
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: "Date",
+        accessor: "date", // accessor is the "key" in the data
+        dataType: "date",
+        // isEditable: true,
+        width: 80,
+        // maxWidth: 150,
+        // minWidth: 150,
+        // Cell: ({ value }) => {
+        //   return formatDate(value);
+        // },
+      },
+      {
+        Header: "Account",
+        accessor: "account",
+      },
+      {
+        Header: "Name",
+        accessor: "name",
+        dataType: "text",
+        width: 250,
+        // minWidth: 400,
+        // maxWidth: 400,
+        isEditable: true,
+        // Cell: ({ value }) => {
+        //   return value;
+        // },
+      },
+      {
+        Header: "Category",
+        accessor: "category",
+        dataType: "text",
+        // options,
+        // width: 250,
+        // maxWidth: 250,
+        // minWidth: 250,
+        Cell: ({ value, onChange }) => {
+          const onSelect = (e) => {
+            onChange(e.target.value, value);
+            value = e.target.value;
+            setSelectedCat(value);
+            setSubCats(
+              categories
+                .filter((x) => x.category === value)
+                .map((sub) => {
+                  return { text: sub.subcategory };
+                })
+            );
+          };
+          return (
+            <Select options={cats} onChange={onSelect} value={value} />
+            // <CategoriesDropdown
+            //   options={categories}
+            //   value={value}
+            //   onChange={onChange}
+            // />
+          );
+        },
+      },
+      {
+        Header: "Sub Category",
+        accessor: "subcategory",
+        dataType: "text",
+        isEditable: true,
+        width: 200,
+        Cell: ({ value, onChange }) => {
+          const onSelect = (e) => {
+            console.log("subcategory", e.target.value);
+            onChange(e.target.value, value);
+          };
+
+          return (
+            <Select options={subCats} onChange={onSelect} value={value} />
+            // <CategoriesDropdown
+            //   options={categories}
+            //   value={value}
+            //   onChange={onChange}
+            // />
+          );
+        },
+      },
+      {
+        Header: "Amount",
+        accessor: "amount",
+        dataType: "text",
+        // isEditable: true,
+        // width: 200,
+        // maxWidth: 200,
+        // minWidth: 200,
+        formatting: {
+          type: "currency",
+          settings: {
+            currencyCode: (x) => x.iso_currency_code,
+          },
+        },
+      },
+      {
+        Header: "Currency Code",
+        accessor: "iso_currency_code",
+        isEditable: true,
+        show: false,
+      },
+      {
+        Header: "Id",
+        accessor: "id",
+        isEditable: true,
+        show: false,
+      },
+    ],
+    [selectedCat]
+  );
+
+  return (
+    <Page
+      left={
+        <SideBar
+          top={<div>Top</div>}
+          bottom={<div>Bottom</div>}
+          links={mainLinks}
+          onItemClick={(link) => {
+            console.log(link);
+          }}
+        />
+      }
+    >
+      {/* <div className="w-96">
+        <div className="relative inline-block">
+          <input type="text" id="input-field" />
+          <div className="absolute w-full ">
+            <Menu orientation="vertical" />
+            <br />
+            <Menu />
+          </div>
+        </div>
+      </div> */}
+      {/* 
+      <div className="flex flex-col">
+        <CategoriesSelect
+          menuItems={categories}
+          initialValue={value}
+          onChange={(x) => {
+            console.log("CategoriesSelect:onChange", x);
+            setValue(x.title);
+          }}
+        />
+      </div> 
+      */}
+      <Table
+        columns={columns}
+        onChange={onChange}
+        // pagingSettings={{ page: 10, pageSize: 10 }}
+        query={{
+          api: "/api/transactions",
+          parameters: {
+            accountId: "usaa_checking",
+            startDate: "2019-01-01",
+            endDate: "2022-01-01",
+          },
+        }}
+      />
+
+      {/* <CashFlow /> */}
+    </Page>
+  );
+}
+
+function Select({ value, options, onChange }) {
+  return (
+    <select
+      id="lang"
+      className="w-full"
+      onChange={onChange}
+      defaultValue={value}
+    >
+      {options.map((cat, key) => (
+        <option key={key} value={cat.text}>
+          {cat.text}
+        </option>
+      ))}
+    </select>
   );
 }

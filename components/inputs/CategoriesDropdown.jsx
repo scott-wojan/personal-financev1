@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Dropdown from "./Dropdown";
 
-export default function CategoriesSelect({
+export default function CategoriesDropdown({
   options,
   value,
   onChange = undefined,

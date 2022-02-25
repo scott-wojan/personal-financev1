@@ -17,7 +17,6 @@ export default function Dropdown({ value = "", options, onChange }) {
   const onSearch = (e) => {
     const val = e.target.value;
     setNewValue(val);
-    console.log("onSearch", val);
     setIsOpen(true);
 
     if (val) {
