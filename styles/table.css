@@ -1,5 +1,5 @@
 table {
-  @apply border-collapse border m-2 whitespace-nowrap;
+  @apply border-collapse border m-2 whitespace-nowrap  w-full;
   thead {
     tr {
       @apply w-full text-sm;
