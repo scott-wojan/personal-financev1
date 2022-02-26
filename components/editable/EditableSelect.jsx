@@ -3,7 +3,6 @@ import useVisible from "components/utils/useVisible";
 import React, { useEffect, useState } from "react";
 
 function Select({ value, options, onChange }) {
-  console.log("optionsxxxx", options);
   return (
     <select
       id="lang"
@@ -12,8 +11,8 @@ function Select({ value, options, onChange }) {
       defaultValue={value}
     >
       {options.map((cat, key) => (
-        <option key={key} value={cat.text}>
-          {cat.text}
+        <option key={key} value={cat.value}>
+          {cat.label}
         </option>
       ))}
     </select>
@@ -47,18 +46,11 @@ export default function EditableSelect({ options, value, onChange }) {
       {!isVisible ? (
         <div onClick={() => setIsVisible(!isVisible)}>{value}</div>
       ) : (
-        <select
-          id="lang"
-          className="w-full"
-          onChange={onChange}
-          defaultValue={value}
-        >
-          {options.map((cat, key) => (
-            <option key={key} value={cat.value}>
-              {cat.label}
-            </option>
-          ))}
-        </select>
+        <Select
+          options={options}
+          onChange={handleTypeSelect}
+          value={selectedOption}
+        />
       )}
     </span>
   );

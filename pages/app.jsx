@@ -1,5 +1,6 @@
 import Table from "components/table/Table";
 import React from "react";
+import { categories } from "data/categories";
 
 export default function AppHome() {
   const columns = React.useMemo(

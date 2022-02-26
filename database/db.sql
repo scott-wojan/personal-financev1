@@ -854,3 +854,18 @@ from (
 	where year = 2021
 	order by category, month
 ) t
+
+
+
+-- Categories JSON Hierarchy
+-- select json_agg(json_user_categories)
+-- from (
+--   select cats.user_category as name, json_agg(json_build_object('name', subCats.user_subcategory)) as subcategories
+--   from (
+-- 	  select distinct cats.user_category from user_categories cats where user_id = 1
+--   ) cats
+--   join (
+-- 	  select distinct user_category, user_subcategory from user_categories where user_id = 1
+--   ) subCats on cats.user_category = subCats.user_category
+--  group by cats.user_category
+-- ) json_user_categories
