@@ -2,8 +2,8 @@ import filterObject from "components/utils/filterObject";
 import useVisible from "components/utils/useVisible";
 import React, { useEffect, useState } from "react";
 
-function Select({ value, options, onChange, name }) {
-  console.log(`${name} render`);
+function Select({ value, options, onChange }) {
+  console.log("optionsxxxx", options);
   return (
     <select
       id="lang"
@@ -43,15 +43,22 @@ export default function EditableSelect({ options, value, onChange }) {
   };
 
   return (
-    <span ref={ref}>
+    <span ref={ref} className="w-full">
       {!isVisible ? (
-        <div onClick={() => setIsVisible(!isVisible)}>{selectedLabel}</div>
+        <div onClick={() => setIsVisible(!isVisible)}>{value}</div>
       ) : (
-        <Select
-          options={options}
-          onChange={handleTypeSelect}
-          value={selectedOption}
-        />
+        <select
+          id="lang"
+          className="w-full"
+          onChange={onChange}
+          defaultValue={value}
+        >
+          {options.map((cat, key) => (
+            <option key={key} value={cat.value}>
+              {cat.label}
+            </option>
+          ))}
+        </select>
       )}
     </span>
   );

@@ -24,7 +24,14 @@ export default function AppHome() {
       {
         Header: "Category",
         accessor: "category",
-        dataType: "text",
+        isEditable: true,
+        dataType: "select",
+        options: [
+          {
+            value: "Travel",
+            label: "Travel",
+          },
+        ],
       },
       {
         Header: "Sub Category",

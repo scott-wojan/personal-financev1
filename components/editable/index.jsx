@@ -1,12 +1,12 @@
 import React from "react";
+import EditableSelect from "./EditableSelect";
 // import EditableDate from "./EditableDate";
-// import EditableSelect from "./EditableSelect";
 import EditableText from "./EditableText";
 
 export const editableComponents = new Map([
   ["number", EditableText],
   ["text", EditableText],
-  // ["select", EditableSelect],
+  ["select", EditableSelect],
   // ["date", EditableDate],
 ]);
 
