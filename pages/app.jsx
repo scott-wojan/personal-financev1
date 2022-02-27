@@ -1,6 +1,7 @@
 import Table from "components/table/Table";
 import React from "react";
 import { categories } from "data/categories";
+import EditableSelect from "components/editable/EditableSelect";
 
 export default function AppHome() {
   const categoryOptions = categories.map((category) => {
@@ -10,10 +11,20 @@ export default function AppHome() {
     };
   });
 
+  const subcategories = [
+    { label: "Salary", value: "Salary" },
+    { label: "Interest", value: "Interest" },
+    { label: "General", value: "General" },
+    { label: "Life Insurance", value: "Life Insurance" },
+    { label: "Clothing", value: "Clothing" },
+    { label: "Payment", value: "Payment" },
+  ];
+
   const onChange = (row, propertyName, newValue, oldValue) => {
     console.log("onChange", row, propertyName, newValue, oldValue);
-    row.subcategory = null;
+
     if (propertyName === "category") {
+      row.subcategory = null;
       console.log(
         `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.id}'`,
         row
@@ -56,18 +67,35 @@ export default function AppHome() {
       {
         Header: "Sub Category",
         accessor: "subcategory",
-        dataType: "text",
         isEditable: true,
-        width: 200,
+        dataType: "select",
+        options: subcategories,
+        Cell: ({ value, onChange, row }) => {
+          const subcategories =
+            categories.find((x) => x.name === row.values.category)
+              ?.subcategories ?? [];
+
+          const options = subcategories.map((subcategory) => {
+            return {
+              label: subcategory.name,
+              value: subcategory.name,
+            };
+          });
+
+          // return <div>{value}</div>;
+          return (
+            <EditableSelect
+              options={options}
+              onChange={onChange}
+              value={value}
+            />
+          );
+        },
       },
       {
         Header: "Amount",
         accessor: "amount",
         dataType: "text",
-        // isEditable: true,
-        // width: 200,
-        // maxWidth: 200,
-        // minWidth: 200,
         formatting: {
           type: "currency",
           settings: {
