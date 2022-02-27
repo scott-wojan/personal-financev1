@@ -11,15 +11,6 @@ export default function AppHome() {
     };
   });
 
-  const subcategories = [
-    { label: "Salary", value: "Salary" },
-    { label: "Interest", value: "Interest" },
-    { label: "General", value: "General" },
-    { label: "Life Insurance", value: "Life Insurance" },
-    { label: "Clothing", value: "Clothing" },
-    { label: "Payment", value: "Payment" },
-  ];
-
   const onChange = (row, propertyName, newValue, oldValue) => {
     if (propertyName === "category") {
       row.subcategory = null;
@@ -66,8 +57,6 @@ export default function AppHome() {
         Header: "Sub Category",
         accessor: "subcategory",
         isEditable: true,
-        dataType: "select",
-        options: subcategories,
         Cell: ({ value, onChange, row }) => {
           const subcategories =
             categories.find((x) => x.name === row.values.category)
@@ -80,7 +69,6 @@ export default function AppHome() {
             };
           });
 
-          // return <div>{value}</div>;
           return (
             <EditableSelect
               options={options}
