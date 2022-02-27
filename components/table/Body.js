@@ -8,16 +8,13 @@ export function Body({ getTableBodyProps, page, prepareRow, onChange }) {
         return (
           <tr key={rowIndex} {...row.getRowProps()}>
             {row.cells.map((cell, columnId) => {
-              // if (cell.column.Header === "Category") {
-              //   console.log(cell, columnId);
-              // }
               return (
                 <td key={columnId} {...cell.getCellProps()}>
                   {cell.render("Cell", {
+                    options: cell.column.options,
                     onChange: (newValue, oldValue) => {
                       onChange?.(cell.row, cell.column.id, newValue, oldValue);
                     },
-                    options: cell.column.options,
                     formatting:
                       cell.column.formatting &&
                       new Proxy(

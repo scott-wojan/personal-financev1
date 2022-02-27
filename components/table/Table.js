@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useState } from "react";
 import { useFlexLayout, usePagination, useSortBy, useTable } from "react-table";
 import { useQuery } from "react-query";
 import { Pagination } from "./Pagination";
@@ -55,6 +55,8 @@ export default function Table({
     pageSize: 10,
   },
 }) {
+  const [tableData, setTableData] = useState(null);
+
   processColumns(columns);
 
   const initialState = {
@@ -63,22 +65,16 @@ export default function Table({
     totalCount: null,
   };
 
-  // console.log("initialState", initialState);
-
   const [{ queryPageIndex, queryPageSize, totalCount }, dispatch] = useReducer(
     reducer,
     initialState
   );
-
-  // console.log("after reducer", { queryPageIndex, queryPageSize });
 
   const functionParams = {
     page: queryPageIndex,
     pageSize: queryPageSize,
     ...query.parameters,
   };
-
-  // console.log("functionParams", functionParams);
 
   const { isLoading, error, data, isSuccess } = useQuery(
     [query.api, queryPageIndex, queryPageSize],
@@ -92,6 +88,39 @@ export default function Table({
       staleTime: Infinity,
     }
   );
+
+  useEffect(() => {
+    setTableData(data);
+  }, [data]);
+
+  const handleTableChange = (row, propertyName, newValue, oldValue) => {
+    // console.log("tableData.data", tableData.data.length);
+    // console.log(
+    //   "handleTableChange",
+    //   row,
+    //   propertyName,
+    //   newValue,
+    //   oldValue,
+    //   data
+    // );
+
+    setTableData((prev) => {
+      return {
+        total: prev.total,
+        data: prev.data?.map((item, index) => {
+          if (index === row.index) {
+            const newRow = {
+              ...item,
+              [propertyName]: newValue,
+            };
+            onChange(newRow, propertyName, newValue, oldValue);
+            return newRow;
+          }
+          return item;
+        }),
+      };
+    });
+  };
 
   const {
     getTableProps,
@@ -111,8 +140,7 @@ export default function Table({
   } = useTable(
     {
       columns,
-      data: isSuccess ? data?.data : [],
-      updateMyData: onChange,
+      data: isSuccess ? tableData?.data ?? [] : [],
       initialState: {
         pageIndex: queryPageIndex,
         pageSize: queryPageSize,
@@ -142,13 +170,13 @@ export default function Table({
   }, [pageSize, gotoPage]);
 
   useEffect(() => {
-    if (data?.total) {
+    if (tableData?.total) {
       dispatch({
         type: TOTAL_COUNT_CHANGED,
-        payload: data.total,
+        payload: tableData.total,
       });
     }
-  }, [data?.total]);
+  }, [tableData?.total]);
 
   if (error) {
     return <p>Error</p>;
@@ -160,11 +188,18 @@ export default function Table({
 
   return (
     <>
-      {!isSuccess && !data ? null : (
+      {!isSuccess && !tableData ? null : (
         <>
           <table {...getTableProps()}>
             <Head headerGroups={headerGroups} />
-            <Body {...{ getTableBodyProps, page, prepareRow, onChange }} />
+            <Body
+              {...{
+                getTableBodyProps,
+                page,
+                prepareRow,
+                onChange: handleTableChange,
+              }}
+            />
           </table>
           {pagingSettings && (
             <Pagination

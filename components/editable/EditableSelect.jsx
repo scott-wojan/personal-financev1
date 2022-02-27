@@ -3,11 +3,15 @@ import useVisible from "components/utils/useVisible";
 import React, { useEffect, useState } from "react";
 
 function Select({ value, options, onChange }) {
+  const onSelect = (e) => {
+    onChange(e.target.value, value);
+  };
+
   return (
     <select
       id="lang"
       className="w-full"
-      onChange={onChange}
+      onChange={onSelect}
       defaultValue={value}
     >
       {options.map((cat, key) => (
@@ -26,7 +30,6 @@ function getLabelForValue(options, value) {
 }
 
 export default function EditableSelect({ options, value, onChange }) {
-  const [selectedOption, setSelectedOption] = useState(value);
   const [selectedLabel, setSelectedLabel] = useState("");
   const { ref, isVisible, setIsVisible } = useVisible(false);
 
@@ -36,7 +39,6 @@ export default function EditableSelect({ options, value, onChange }) {
   }, [options, value]);
 
   const handleTypeSelect = (newValue, oldValue) => {
-    setSelectedOption(newValue);
     setSelectedLabel(getLabelForValue(options, newValue));
     onChange?.(newValue, oldValue);
   };
@@ -44,12 +46,12 @@ export default function EditableSelect({ options, value, onChange }) {
   return (
     <span ref={ref} className="w-full">
       {!isVisible ? (
-        <div onClick={() => setIsVisible(!isVisible)}>{value}</div>
+        <div onClick={() => setIsVisible(!isVisible)}>{selectedLabel}</div>
       ) : (
         <Select
           options={options}
           onChange={handleTypeSelect}
-          value={selectedOption}
+          value={selectedLabel}
         />
       )}
     </span>

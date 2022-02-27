@@ -3,6 +3,30 @@ import React from "react";
 import { categories } from "data/categories";
 
 export default function AppHome() {
+  const categoryOptions = categories.map((category) => {
+    return {
+      label: category.name,
+      value: category.name,
+    };
+  });
+
+  const onChange = (row, propertyName, newValue, oldValue) => {
+    console.log("onChange", row, propertyName, newValue, oldValue);
+    row.subcategory = null;
+    if (propertyName === "category") {
+      console.log(
+        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.id}'`,
+        row
+      );
+    } else {
+      row[propertyName] = newValue;
+      console.log(
+        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.id}'`,
+        row
+      );
+    }
+  };
+
   const columns = React.useMemo(
     () => [
       {
@@ -27,12 +51,7 @@ export default function AppHome() {
         accessor: "category",
         isEditable: true,
         dataType: "select",
-        options: [
-          {
-            value: "Travel",
-            label: "Travel",
-          },
-        ],
+        options: categoryOptions,
       },
       {
         Header: "Sub Category",
@@ -75,7 +94,7 @@ export default function AppHome() {
   return (
     <Table
       columns={columns}
-      // onChange={onChange}
+      onChange={onChange}
       // pagingSettings={{ page: 10, pageSize: 10 }}
       query={{
         api: "/api/transactions",
