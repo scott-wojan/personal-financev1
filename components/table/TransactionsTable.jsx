@@ -1,47 +1,37 @@
-const { categories } = require("data/categories");
-const { useState } = require("react");
-const React = require("react");
-const { default: Table } = require("./Table");
+import EditableSelect from "components/editable/EditableSelect";
+import EditableText from "components/editable/EditableText";
+import { categories } from "data/categories";
+import React, { useMemo } from "react";
+import Table from "./Table";
 
 export default function TransactionsTable() {
-  const [cats, setCats] = useState(
-    // @ts-ignore
-    [...new Set(categories.map((item) => item.category))].map((x) => {
-      return { text: x };
-    })
-  );
-
-  const [subCats, setSubCats] = useState([]);
-  const [selectedCat, setSelectedCat] = useState();
+  const categoryOptions = categories.map((category) => {
+    return category;
+  });
 
   const onChange = (row, propertyName, newValue, oldValue) => {
-    if (propertyName === "subcategory") {
-      console.log(
-        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue.title}' for '${row.values.id}'`,
-        row
-      );
+    if (propertyName === "category") {
+      row.subcategory = "";
+      // console.log(
+      //   `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.id}'`,
+      //   row
+      // );
     } else {
-      row.values[propertyName] = newValue;
+      row[propertyName] = newValue;
       console.log(
-        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.values.id}'`,
+        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.id}'`,
         row
       );
     }
   };
 
-  const columns = React.useMemo(
+  const columns = useMemo(
     () => [
       {
         Header: "Date",
         accessor: "date", // accessor is the "key" in the data
         dataType: "date",
-        // isEditable: true,
         width: 80,
-        // maxWidth: 150,
-        // minWidth: 150,
-        // Cell: ({ value }) => {
-        //   return formatDate(value);
-        // },
       },
       {
         Header: "Account",
@@ -52,73 +42,38 @@ export default function TransactionsTable() {
         accessor: "name",
         dataType: "text",
         width: 250,
-        // minWidth: 400,
-        // maxWidth: 400,
         isEditable: true,
-        // Cell: ({ value }) => {
-        //   return value;
-        // },
+        Cell: EditableText,
       },
       {
         Header: "Category",
         accessor: "category",
-        dataType: "text",
-        // options,
-        // width: 250,
-        // maxWidth: 250,
-        // minWidth: 250,
-        Cell: ({ value, onChange }) => {
-          const onSelect = (e) => {
-            onChange(e.target.value, value);
-            value = e.target.value;
-            setSelectedCat(value);
-            setSubCats(
-              categories
-                .filter((x) => x.category === value)
-                .map((sub) => {
-                  return { text: sub.subcategory };
-                })
-            );
-          };
-          return (
-            <Select
-              options={cats}
-              onChange={onSelect}
-              value={value}
-              name="Category"
-            />
-            // <CategoriesDropdown
-            //   options={categories}
-            //   value={value}
-            //   onChange={onChange}
-            // />
-          );
-        },
+        isEditable: true,
+        dataType: "select",
+        options: categoryOptions,
       },
       {
         Header: "Sub Category",
         accessor: "subcategory",
-        dataType: "text",
         isEditable: true,
-        width: 200,
-        Cell: ({ value, onChange }) => {
-          const onSelect = (e) => {
-            console.log("subcategory", e.target.value);
-            onChange(e.target.value, value);
-          };
+        Cell: ({ value, onChange, row, ...rest }) => {
+          const subcategories =
+            categories.find((x) => x.value === row.values.category)
+              ?.subcategories ?? [];
+
+          const options = subcategories.map((subcategory) => {
+            return subcategory;
+          });
+
+          options.unshift({ label: "", value: "" });
+          // console.log("value", value);
 
           return (
-            <Select
-              options={subCats}
-              onChange={onSelect}
+            <EditableSelect
+              options={options}
+              onChange={onChange}
               value={value}
-              name="Sub Category"
             />
-            // <CategoriesDropdown
-            //   options={categories}
-            //   value={value}
-            //   onChange={onChange}
-            // />
           );
         },
       },
@@ -126,10 +81,6 @@ export default function TransactionsTable() {
         Header: "Amount",
         accessor: "amount",
         dataType: "text",
-        // isEditable: true,
-        // width: 200,
-        // maxWidth: 200,
-        // minWidth: 200,
         formatting: {
           type: "currency",
           settings: {
@@ -150,7 +101,7 @@ export default function TransactionsTable() {
         show: false,
       },
     ],
-    [selectedCat]
+    []
   );
 
   return (
@@ -167,23 +118,5 @@ export default function TransactionsTable() {
         },
       }}
     />
-  );
-}
-
-function Select({ value, options, onChange, name }) {
-  console.log(`${name} render`);
-  return (
-    <select
-      id="lang"
-      className="w-full"
-      onChange={onChange}
-      defaultValue={value}
-    >
-      {options.map((cat, key) => (
-        <option key={key} value={cat.text}>
-          {cat.text}
-        </option>
-      ))}
-    </select>
   );
 }

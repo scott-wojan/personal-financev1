@@ -91,6 +91,7 @@ export default function Table({
 
   useEffect(() => {
     setTableData(data);
+    console.log("data", data);
   }, [data]);
 
   const handleTableChange = (row, propertyName, newValue, oldValue) => {
