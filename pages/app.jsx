@@ -10,11 +10,11 @@ export default function AppHome() {
 
   const onChange = (row, propertyName, newValue, oldValue) => {
     if (propertyName === "category") {
-      row.subcategory = null;
-      console.log(
-        `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.id}'`,
-        row
-      );
+      row.subcategory = "";
+      // console.log(
+      //   `Table update! Property '${propertyName}' changed from '${oldValue}' to '${newValue}' for '${row.id}'`,
+      //   row
+      // );
     } else {
       row[propertyName] = newValue;
       console.log(
@@ -54,7 +54,7 @@ export default function AppHome() {
         Header: "Sub Category",
         accessor: "subcategory",
         isEditable: true,
-        Cell: ({ value, onChange, row }) => {
+        Cell: ({ value, onChange, row, ...rest }) => {
           const subcategories =
             categories.find((x) => x.value === row.values.category)
               ?.subcategories ?? [];
@@ -62,6 +62,9 @@ export default function AppHome() {
           const options = subcategories.map((subcategory) => {
             return subcategory;
           });
+
+          options.unshift({ label: "", value: "" });
+          // console.log("value", value);
 
           return (
             <EditableSelect

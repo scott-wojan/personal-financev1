@@ -3,8 +3,8 @@ export const categories = [
     label: "Auto & Transportation",
     value: "Auto & Transportation",
     subcategories: [
-      { label: "Insurance", value: "Insurance" },
       { label: "Gas/Fuel", value: "Gas/Fuel" },
+      { label: "Insurance", value: "Insurance" },
       { label: "Parts/Service", value: "Parts/Service" },
       { label: "Tolls", value: "Tolls" },
     ],
@@ -33,9 +33,9 @@ export const categories = [
     label: "Entertainment",
     value: "Entertainment",
     subcategories: [
+      { label: "Movies", value: "Movies" },
       { label: "Other", value: "Other" },
       { label: "Sports", value: "Sports" },
-      { label: "Movies", value: "Movies" },
     ],
   },
   {
@@ -60,18 +60,18 @@ export const categories = [
     label: "Government",
     value: "Government",
     subcategories: [
-      { label: "Property Tax", value: "Property Tax" },
       { label: "Federal Tax", value: "Federal Tax" },
       { label: "Legal", value: "Legal" },
+      { label: "Property Tax", value: "Property Tax" },
     ],
   },
   {
     label: "Healthcare",
     value: "Healthcare",
     subcategories: [
-      { label: "Pharmacy", value: "Pharmacy" },
-      { label: "Equipment", value: "Equipment" },
       { label: "Doctor", value: "Doctor" },
+      { label: "Equipment", value: "Equipment" },
+      { label: "Pharmacy", value: "Pharmacy" },
       { label: "Reimbursement", value: "Reimbursement" },
     ],
   },
@@ -87,11 +87,11 @@ export const categories = [
     label: "Home",
     value: "Home",
     subcategories: [
-      { label: "Property Tax", value: "Property Tax" },
-      { label: "Home Improvement", value: "Home Improvement" },
       { label: "Furnishings & Décor", value: "Furnishings & Décor" },
-      { label: "Mortgage", value: "Mortgage" },
+      { label: "Home Improvement", value: "Home Improvement" },
       { label: "Lawn Care", value: "Lawn Care" },
+      { label: "Mortgage", value: "Mortgage" },
+      { label: "Property Tax", value: "Property Tax" },
       { label: "Security", value: "Security" },
     ],
   },
@@ -99,8 +99,8 @@ export const categories = [
     label: "Income",
     value: "Income",
     subcategories: [
-      { label: "Interest", value: "Interest" },
       { label: "Credit Card Reward", value: "Credit Card Reward" },
+      { label: "Interest", value: "Interest" },
       { label: "Salary", value: "Salary" },
     ],
   },
@@ -113,8 +113,8 @@ export const categories = [
     label: "Investment",
     value: "Investment",
     subcategories: [
-      { label: "Income", value: "Income" },
       { label: "Expense", value: "Expense" },
+      { label: "Income", value: "Income" },
     ],
   },
   {
@@ -129,8 +129,8 @@ export const categories = [
     label: "Personal Care",
     value: "Personal Care",
     subcategories: [
-      { label: "Spa & Massage", value: "Spa & Massage" },
       { label: "Hair", value: "Hair" },
+      { label: "Spa & Massage", value: "Spa & Massage" },
     ],
   },
   {
@@ -176,13 +176,13 @@ export const categories = [
     label: "Travel",
     value: "Travel",
     subcategories: [
-      { label: "Airfare", value: "Airfare" },
       { label: "Activities", value: "Activities" },
-      { label: "Cruise", value: "Cruise" },
-      { label: "Pet Boarding", value: "Pet Boarding" },
+      { label: "Airfare", value: "Airfare" },
       { label: "Cash/ATM", value: "Cash/ATM" },
+      { label: "Cruise", value: "Cruise" },
       { label: "Hotel", value: "Hotel" },
       { label: "Internet", value: "Internet" },
+      { label: "Pet Boarding", value: "Pet Boarding" },
       { label: "Taxi", value: "Taxi" },
     ],
   },
@@ -190,18 +190,18 @@ export const categories = [
     label: "Utilities",
     value: "Utilities",
     subcategories: [
-      { label: "Gas & Electric", value: "Gas & Electric" },
       { label: "City Services", value: "City Services" },
+      { label: "Gas & Electric", value: "Gas & Electric" },
     ],
   },
   {
     label: "Wedding",
     value: "Wedding",
     subcategories: [
-      { label: "Services", value: "Services" },
-      { label: "Licence", value: "Licence" },
       { label: "Ceremony", value: "Ceremony" },
+      { label: "Licence", value: "Licence" },
       { label: "Ring", value: "Ring" },
+      { label: "Services", value: "Services" },
     ],
   },
 ];

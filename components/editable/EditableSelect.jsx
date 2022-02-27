@@ -42,11 +42,12 @@ export default function EditableSelect({ options, value, onChange }) {
     setSelectedLabel(getLabelForValue(options, newValue));
     onChange?.(newValue, oldValue);
   };
-
   return (
     <span ref={ref} className="w-full">
       {!isVisible ? (
-        <div onClick={() => setIsVisible(!isVisible)}>{selectedLabel}</div>
+        <div onClick={() => setIsVisible(!isVisible)}>
+          {selectedLabel} &nbsp;
+        </div>
       ) : (
         <Select
           options={options}
