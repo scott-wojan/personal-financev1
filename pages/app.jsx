@@ -21,8 +21,6 @@ export default function AppHome() {
   ];
 
   const onChange = (row, propertyName, newValue, oldValue) => {
-    console.log("onChange", row, propertyName, newValue, oldValue);
-
     if (propertyName === "category") {
       row.subcategory = null;
       console.log(
