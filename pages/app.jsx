@@ -5,10 +5,7 @@ import EditableSelect from "components/editable/EditableSelect";
 
 export default function AppHome() {
   const categoryOptions = categories.map((category) => {
-    return {
-      label: category.name,
-      value: category.name,
-    };
+    return category;
   });
 
   const onChange = (row, propertyName, newValue, oldValue) => {
@@ -59,14 +56,11 @@ export default function AppHome() {
         isEditable: true,
         Cell: ({ value, onChange, row }) => {
           const subcategories =
-            categories.find((x) => x.name === row.values.category)
+            categories.find((x) => x.value === row.values.category)
               ?.subcategories ?? [];
 
           const options = subcategories.map((subcategory) => {
-            return {
-              label: subcategory.name,
-              value: subcategory.name,
-            };
+            return subcategory;
           });
 
           return (

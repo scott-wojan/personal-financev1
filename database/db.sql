@@ -860,7 +860,7 @@ from (
 -- Categories JSON Hierarchy
 -- select json_agg(json_user_categories)
 -- from (
---   select cats.user_category as name, json_agg(json_build_object('name', subCats.user_subcategory)) as subcategories
+--   select cats.user_category as label, cats.user_category as value, json_agg(json_build_object('label', subCats.user_subcategory,'value', subCats.user_subcategory)) as subcategories
 --   from (
 -- 	  select distinct cats.user_category from user_categories cats where user_id = 1
 --   ) cats
@@ -868,4 +868,5 @@ from (
 -- 	  select distinct user_category, user_subcategory from user_categories where user_id = 1
 --   ) subCats on cats.user_category = subCats.user_category
 --  group by cats.user_category
+-- 	order by cats.user_category
 -- ) json_user_categories
