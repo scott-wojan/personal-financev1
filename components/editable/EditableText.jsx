@@ -4,16 +4,22 @@ import ContentEditable from "react-contenteditable";
 
 export default function EditableText({
   value,
+  formatting = undefined,
   onChange = undefined,
   disabled = false,
-  formatting = undefined,
+  isInEditMode = false,
 }) {
   const [unFormattedValue, setUnFormattedValue] = useState(value);
   const [formattedValue, setFormattedValue] = useState(value);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(isInEditMode);
+
   useEffect(() => {
     setUnFormattedValue(value);
   }, [value]);
+
+  useEffect(() => {
+    setIsEditing(isInEditMode);
+  }, [isInEditMode]);
 
   useEffect(() => {
     if (formatting) {
@@ -24,26 +30,22 @@ export default function EditableText({
   }, [formatting, value, unFormattedValue]);
 
   const onBlur = (e) => {
-    const newValue = e.target.innerHTML;
-    setIsEditing(false);
+    const newValue = e.target.value;
+    // setIsEditing(false);
     setUnFormattedValue(newValue);
-
     if (value !== newValue) onChange?.(newValue, value);
   };
 
-  return (
-    <ContentEditable
-      onFocus={() => {
-        setIsEditing(true);
-      }}
-      html={
-        (isEditing && unFormattedValue?.toString()) ||
-        formattedValue?.toString() ||
-        ""
-      }
-      onChange={null}
-      onBlur={onBlur}
-      disabled={disabled}
-    />
-  );
+  if (isEditing) {
+    return (
+      <input
+        type="text"
+        defaultValue={unFormattedValue?.toString() ?? ""}
+        className="w-full"
+        onBlur={onBlur}
+      />
+    );
+  }
+
+  return <div>{formattedValue?.toString()}</div>;
 }

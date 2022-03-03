@@ -18,18 +18,8 @@ function getTableOptions(columns, data, initialState) {
   };
 }
 
-export default function Index({ columns, data }) {
+export default function Index({ columns, data, onChange }) {
   const [selectedRowIndex, setSelectedRowIndex] = useState("-1");
-
-  const updateSelectedRowIndex = (rowIndex) => {
-    setSelectedRowIndex((prev) => {
-      if (selectedRowIndex != rowIndex) {
-        setSelectedRowIndex(rowIndex);
-        console.log(`Row changing from: ${selectedRowIndex} to: ${rowIndex}`);
-      }
-      return rowIndex;
-    });
-  };
 
   const tableInstance = useTable(
     getTableOptions(columns, data, tableInitialState),
@@ -43,7 +33,7 @@ export default function Index({ columns, data }) {
     headerGroups,
     rows,
     prepareRow,
-    // state: { selectedRowIndex },
+    state: {},
   } = tableInstance;
 
   return (
@@ -79,38 +69,35 @@ export default function Index({ columns, data }) {
               <tr
                 key={rowIndex}
                 {...row.getRowProps()}
-                onClick={(element) => {
-                  updateSelectedRowIndex(row.id);
-
-                  // if (selectedRowIndex != row.id) {
-                  //   row.setState((old) => ({
-                  //     ...old,
-                  //     isEditing: true, //!old.isEditing
-                  //   }));
-                  // }
+                onClick={() => {
+                  setSelectedRowIndex(row.id);
                 }}
-                // onBlur={() => {
-                //   console.log("onBlur", selectedRowIndex, row.id);
-                //   row.setState((old) => ({
-                //     ...old,
-                //     isEditing: false,
-                //   }));
-                // }}
               >
                 {row.cells.map((cell, cellIndex) => {
+                  //  console.log(tableInstance.state.selectedRowIndex);
                   return (
-                    <td
-                      key={cellIndex}
-                      {...cell.getCellProps()}
-                      onFocus={(element) => {
-                        console.log(
-                          `onFocus: selectedRowIndex: ${selectedRowIndex} currentRow: ${row.id}`
-                        );
-                        //updateSelectedRowIndex(row.id);
-                      }}
-                    >
-                      {cell.render("Cell")}
-                      {row.state.isEditing ? " yes" : " no"}
+                    <td key={cellIndex} {...cell.getCellProps()}>
+                      {cell.render("Cell", {
+                        isInEditMode: selectedRowIndex == row.id,
+                        options: cell.column.options,
+                        onChange: (newValue, oldValue) => {
+                          onChange?.(
+                            cell.row,
+                            cell.column.id,
+                            newValue,
+                            oldValue
+                          );
+                        },
+                        formatting:
+                          cell.column.formatting &&
+                          new Proxy(
+                            {
+                              ...cell.column.formatting,
+                              data: cell.row.values,
+                            },
+                            formattingHandler
+                          ),
+                      })}
                     </td>
                   );
                 })}
