@@ -9,6 +9,10 @@ import {
 } from "react-table";
 
 const initialTableState = {};
+const initialRowState = {
+  isDiry: false,
+  editedProperties: new Set(),
+};
 
 function getTableOptions(columns, data, initialState) {
   return {
@@ -19,8 +23,8 @@ function getTableOptions(columns, data, initialState) {
     hiddenColumns: columns
       .filter((col) => col.show === false)
       .map((col) => col.accessor),
-    initialRowStateAccessor: (row) => ({ isDiry: false }),
-    initialCellStateAccessor: (cell) => ({ count: 0 }),
+    initialRowStateAccessor: (row) => initialRowState,
+    // initialCellStateAccessor: (cell) => ({ count: 0 }),
   };
 }
 
@@ -44,10 +48,12 @@ export default function Index({
 
     setSelectedRow((prevRow) => {
       if (prevRow?.state.isDiry) {
-        console.log();
         onRowChange?.({ row: prevRow });
       }
-
+      row.setState({
+        isDiry: false,
+        editedProperties: new Set(),
+      });
       //return {...prevState, ...row.id};
       return row;
     });
@@ -118,7 +124,6 @@ export default function Index({
         <tbody {...getTableBodyProps()}>
           {rows.map((row, rowIndex) => {
             prepareRow(row);
-            // console.log(row);
             return (
               <tr
                 key={rowIndex}
@@ -130,17 +135,21 @@ export default function Index({
                 {row.cells.map((cell, cellIndex) => {
                   return (
                     <td key={cellIndex} {...cell.getCellProps()}>
-                      isDiry: {row.state.isDiry}
                       {cell.render("Cell", {
                         isInEditMode: selectedRow?.id == row.id,
                         options: cell.column.options,
                         onChange: async (newValue, oldValue) => {
-                          console.log(`Updating row ${row.id} to dirty`);
+                          await row.setState((old) => {
+                            const newEdited = old.editedProperties.add(
+                              cell.column.id
+                            );
 
-                          await row.setState((old) => ({
-                            ...old,
-                            isDiry: true,
-                          }));
+                            return {
+                              ...old,
+                              isDiry: true,
+                              editedProperties: newEdited,
+                            };
+                          });
 
                           updateTableData?.({
                             row: row,
