@@ -43,9 +43,12 @@ export default function Index({
     }
 
     setSelectedRow((prevRow) => {
-      if (prevRow.state.isDirty) {
-        onRowChange?.(prevRow);
+      if (prevRow?.state.isDiry) {
+        console.log();
+        onRowChange?.({ row: prevRow });
       }
+
+      //return {...prevState, ...row.id};
       return row;
     });
   };

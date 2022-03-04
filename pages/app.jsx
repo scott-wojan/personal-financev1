@@ -76,8 +76,8 @@ export default function AppHome() {
     //console.log("onCellChange: ", row, propertyName, newValue, oldValue);
   };
 
-  const onRowChange = ({ row, propertyName, newValue, oldValue }) => {
-    console.log("onCellChange: ", row, propertyName, newValue, oldValue);
+  const onRowChange = ({ row }) => {
+    console.log("onRowChange: ", row);
   };
 
   return (
