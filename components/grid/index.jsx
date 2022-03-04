@@ -1,6 +1,6 @@
 import useOnClickOutside from "components/hooks/useOnClickOutside";
 import { formattingHandler } from "components/utils/formatting";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   useFlexLayout,
   useRowSelect,
@@ -10,7 +10,6 @@ import {
 
 const initialTableState = {};
 const initialRowState = {
-  isDiry: false,
   editedProperties: new Set(),
 };
 
@@ -41,45 +40,49 @@ export default function Index({
     setTableData(data);
   }, [data]);
 
-  const updateSelectedRowIndex = (row) => {
-    if (selectedRow?.id == row.id) {
+  const updateSelectedRow = (row) => {
+    if (selectedRow?.id == row?.id) {
       return;
     }
 
-    setSelectedRow((prevRow) => {
-      if (prevRow?.state.isDiry) {
-        onRowChange?.({ row: prevRow });
+    setSelectedRow(async (prevRow) => {
+      if (prevRow?.state.editedProperties.size > 0) {
+        const diff = getDiff(prevRow.original, prevRow.values);
+        onRowChange?.({ row: prevRow, changes: diff });
       }
-      row.setState({
-        isDiry: false,
-        editedProperties: new Set(),
-      });
-      //return {...prevState, ...row.id};
+      await prevRow?.setState(initialRowState);
+
       return row;
     });
   };
 
   const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
     setTableData((prev) => {
-      return {
+      const newTableData = {
         total: prev.total,
         data: prev?.data?.map((item, index) => {
           if (item.id === row.original.id) {
+            row.values[propertyName] = newValue;
             const newRow = {
               ...item,
               [propertyName]: newValue,
             };
+
+            setSelectedRow(row);
+
             onCellChange?.({ row: newRow, propertyName, newValue, oldValue });
             return newRow;
           }
           return item;
         }),
       };
+      // console.log("updateTableData", newTableData);
+      return newTableData;
     });
   };
 
   const tableRef = useRef(null);
-  useOnClickOutside(tableRef, () => setSelectedRow(null)); //TODO: include in updateSelectedRowIndex
+  useOnClickOutside(tableRef, () => updateSelectedRow(null)); //TODO: include in updateSelectedRowIndex
   const tableInstance = useTable(
     getTableOptions(columns, tableData, initialTableState),
     useFlexLayout,
@@ -129,7 +132,7 @@ export default function Index({
                 key={rowIndex}
                 {...row.getRowProps()}
                 onClick={() => {
-                  updateSelectedRowIndex(row);
+                  updateSelectedRow(row);
                 }}
               >
                 {row.cells.map((cell, cellIndex) => {
@@ -146,7 +149,6 @@ export default function Index({
 
                             return {
                               ...old,
-                              isDiry: true,
                               editedProperties: newEdited,
                             };
                           });
@@ -179,3 +181,16 @@ export default function Index({
     </>
   );
 }
+
+const getDiff = (object1, object2) => {
+  const result = {};
+  Object.keys(object1).forEach((r) => {
+    const element = object1[r];
+    if (object2[r]) {
+      if (element !== object2[r]) {
+        result[r] = object2[r];
+      }
+    }
+  });
+  return result;
+};
