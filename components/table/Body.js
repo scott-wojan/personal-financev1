@@ -1,3 +1,4 @@
+import { formattingHandler } from "components/utils/formatting";
 import React from "react";
 
 export function Body({ getTableBodyProps, page, prepareRow, onChange }) {
@@ -31,26 +32,3 @@ export function Body({ getTableBodyProps, page, prepareRow, onChange }) {
     </tbody>
   );
 }
-
-const formattingHandler = {
-  get: function (target, prop, receiver) {
-    if (prop === "settings") {
-      const settings = Object.keys(target.settings).map((propertyName) => {
-        const propertyValue = target.settings[propertyName];
-        if (typeof propertyValue === "function") {
-          return {
-            [propertyName]: propertyValue(target.data),
-          };
-        }
-        return {
-          [propertyName]: propertyValue,
-        };
-      })?.[0];
-
-      return settings;
-    }
-    1;
-    // @ts-ignore
-    return Reflect.get(...arguments);
-  },
-};

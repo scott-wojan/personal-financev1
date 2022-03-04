@@ -46,4 +46,27 @@ function format(type, value, settings) {
   return formatter(value, settings);
 }
 
-export { formatCurrency, formatDate, format };
+const formattingHandler = {
+  get: function (target, prop, receiver) {
+    if (prop === "settings") {
+      const settings = Object.keys(target.settings).map((propertyName) => {
+        const propertyValue = target.settings[propertyName];
+        if (typeof propertyValue === "function") {
+          return {
+            [propertyName]: propertyValue(target.data),
+          };
+        }
+        return {
+          [propertyName]: propertyValue,
+        };
+      })?.[0];
+
+      return settings;
+    }
+    1;
+    // @ts-ignore
+    return Reflect.get(...arguments);
+  },
+};
+
+export { formatCurrency, formatDate, format, formattingHandler };

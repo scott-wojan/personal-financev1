@@ -1,30 +1,81 @@
-import React, { useRef, useState } from "react";
-import { useFlexLayout, useRowState, useTable } from "react-table";
+import useOnClickOutside from "components/hooks/useOnClickOutside";
+import { formattingHandler } from "components/utils/formatting";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  useFlexLayout,
+  useRowSelect,
+  useRowState,
+  useTable,
+} from "react-table";
 
-const tableInitialState = {
-  selectedRowIndex: undefined,
-};
+const initialTableState = {};
 
 function getTableOptions(columns, data, initialState) {
   return {
     columns,
-    data,
+    data: data.data,
+    autoResetRowState: false,
     initialState,
     hiddenColumns: columns
       .filter((col) => col.show === false)
       .map((col) => col.accessor),
-    initialRowStateAccessor: (row) => ({ isEditing: false }),
+    initialRowStateAccessor: (row) => ({ isDiry: false }),
     initialCellStateAccessor: (cell) => ({ count: 0 }),
   };
 }
 
-export default function Index({ columns, data, onChange }) {
-  const [selectedRowIndex, setSelectedRowIndex] = useState("-1");
+export default function Index({
+  columns,
+  data,
+  onCellChange = undefined,
+  onRowChange = undefined,
+}) {
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [tableData, setTableData] = useState(data);
 
+  useEffect(() => {
+    setTableData(data);
+  }, [data]);
+
+  const updateSelectedRowIndex = (row) => {
+    if (selectedRow?.id == row.id) {
+      return;
+    }
+
+    setSelectedRow((prevRow) => {
+      if (prevRow.state.isDirty) {
+        onRowChange?.(prevRow);
+      }
+      return row;
+    });
+  };
+
+  const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
+    setTableData((prev) => {
+      return {
+        total: prev.total,
+        data: prev?.data?.map((item, index) => {
+          if (item.id === row.original.id) {
+            const newRow = {
+              ...item,
+              [propertyName]: newValue,
+            };
+            onCellChange?.({ row: newRow, propertyName, newValue, oldValue });
+            return newRow;
+          }
+          return item;
+        }),
+      };
+    });
+  };
+
+  const tableRef = useRef(null);
+  useOnClickOutside(tableRef, () => setSelectedRow(null)); //TODO: include in updateSelectedRowIndex
   const tableInstance = useTable(
-    getTableOptions(columns, data, tableInitialState),
+    getTableOptions(columns, tableData, initialTableState),
     useFlexLayout,
-    useRowState
+    useRowState,
+    useRowSelect
   );
 
   const {
@@ -38,7 +89,7 @@ export default function Index({ columns, data, onChange }) {
 
   return (
     <>
-      <table {...getTableProps()}>
+      <table {...getTableProps()} ref={tableRef}>
         <thead>
           {
             // Loop over the header rows
@@ -70,23 +121,30 @@ export default function Index({ columns, data, onChange }) {
                 key={rowIndex}
                 {...row.getRowProps()}
                 onClick={() => {
-                  setSelectedRowIndex(row.id);
+                  updateSelectedRowIndex(row);
                 }}
               >
                 {row.cells.map((cell, cellIndex) => {
-                  //  console.log(tableInstance.state.selectedRowIndex);
                   return (
                     <td key={cellIndex} {...cell.getCellProps()}>
+                      isDiry: {row.state.isDiry}
                       {cell.render("Cell", {
-                        isInEditMode: selectedRowIndex == row.id,
+                        isInEditMode: selectedRow?.id == row.id,
                         options: cell.column.options,
-                        onChange: (newValue, oldValue) => {
-                          onChange?.(
-                            cell.row,
-                            cell.column.id,
+                        onChange: async (newValue, oldValue) => {
+                          console.log(`Updating row ${row.id} to dirty`);
+
+                          await row.setState((old) => ({
+                            ...old,
+                            isDiry: true,
+                          }));
+
+                          updateTableData?.({
+                            row: row,
+                            propertyName: cell.column.id,
                             newValue,
-                            oldValue
-                          );
+                            oldValue,
+                          });
                         },
                         formatting:
                           cell.column.formatting &&

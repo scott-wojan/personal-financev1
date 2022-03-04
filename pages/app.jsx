@@ -3,6 +3,7 @@ import Grid from "components/Grid";
 import { categories } from "data/categories";
 import { transactions } from "data/transactions";
 import EditableText from "components/editable/EditableText";
+import TransactionsTable from "components/table/TransactionsTable";
 
 export default function AppHome() {
   const categoryOptions = categories.map((category) => {
@@ -71,5 +72,21 @@ export default function AppHome() {
     []
   );
 
-  return <Grid columns={columns} data={transactions.data} />;
+  const onCellChange = ({ row, propertyName, newValue, oldValue }) => {
+    //console.log("onCellChange: ", row, propertyName, newValue, oldValue);
+  };
+
+  const onRowChange = ({ row, propertyName, newValue, oldValue }) => {
+    console.log("onCellChange: ", row, propertyName, newValue, oldValue);
+  };
+
+  return (
+    // <TransactionsTable />
+    <Grid
+      columns={columns}
+      data={transactions}
+      onCellChange={onCellChange}
+      onRowChange={onRowChange}
+    />
+  );
 }

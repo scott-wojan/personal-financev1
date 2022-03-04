@@ -56,6 +56,7 @@ export default function Table({
   },
 }) {
   const [tableData, setTableData] = useState(null);
+  const [selectedRow, setSelectedRow] = useState({});
 
   processColumns(columns);
 
@@ -91,7 +92,6 @@ export default function Table({
 
   useEffect(() => {
     setTableData(data);
-    console.log("data", data);
   }, [data]);
 
   const handleTableChange = (row, propertyName, newValue, oldValue) => {
