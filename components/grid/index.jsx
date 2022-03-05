@@ -9,9 +9,7 @@ import {
 } from "react-table";
 
 const initialTableState = {};
-const initialRowState = {
-  editedProperties: new Set(),
-};
+const initialRowState = {};
 
 function getTableOptions(columns, data, initialState) {
   return {
@@ -126,26 +124,15 @@ export default function Grid({
     <>
       <table {...getTableProps()} ref={tableRef}>
         <thead>
-          {
-            // Loop over the header rows
-            headerGroups.map((headerGroup, headerIndex) => (
-              // Apply the header row props
-              <tr key={headerIndex} {...headerGroup.getHeaderGroupProps()}>
-                {
-                  // Loop over the headers in each row
-                  headerGroup.headers.map((column, columnIndex) => (
-                    // Apply the header cell props
-                    <th key={columnIndex} {...column.getHeaderProps()}>
-                      {
-                        // Render the header
-                        column.render("Header")
-                      }
-                    </th>
-                  ))
-                }
-              </tr>
-            ))
-          }
+          {headerGroups.map((headerGroup, headerIndex) => (
+            <tr key={headerIndex} {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column, columnIndex) => (
+                <th key={columnIndex} {...column.getHeaderProps()}>
+                  {column.render("Header")}
+                </th>
+              ))}
+            </tr>
+          ))}
         </thead>
         <tbody {...getTableBodyProps()}>
           {rows.map((row, rowIndex) => {
@@ -165,17 +152,6 @@ export default function Grid({
                         isInEditMode: selectedRow?.id == row.id,
                         options: cell.column.options,
                         onChange: async (newValue, oldValue) => {
-                          await row.setState((old) => {
-                            const newEdited = old.editedProperties.add(
-                              cell.column.id
-                            );
-
-                            return {
-                              ...old,
-                              editedProperties: newEdited,
-                            };
-                          });
-
                           updateTableData?.({
                             row: row,
                             propertyName: cell.column.id,
