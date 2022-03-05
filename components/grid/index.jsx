@@ -55,7 +55,6 @@ export default function Grid({
       }
     }
     setSelectedRow(row);
-
     // setSelectedRow((prevRow) => {
     //   if (prevRow) {
     //     if (prevRow.state?.editedProperties.size > 0) {
@@ -145,6 +144,16 @@ export default function Grid({
                 row={row}
                 selectedRow={selectedRow}
                 onClick={updateSelectedRow}
+                onRowIndexChange={(newIndex) => {
+                  const newRow = rows.find((r) => {
+                    return r.index == newIndex;
+                  });
+                  if (newRow) {
+                    updateSelectedRow(newRow);
+                  }
+                  // console.log("newRow", newRow);
+                  // console.log("newIndex", newIndex);
+                }}
               >
                 {row.cells.map((cell, cellIndex) => {
                   return (
@@ -170,6 +179,7 @@ function TableRow({
   tbodyRef,
   row,
   selectedRow,
+  onRowIndexChange,
   children,
   onClick: OnRowClick,
 }) {
@@ -180,12 +190,61 @@ function TableRow({
       onClick={() => {
         OnRowClick(row);
       }}
-      onKeyDown={(e) => handleTableRowKeyDown(e, tbodyRef, row)}
+      onKeyDown={(e) =>
+        handleTableRowKeyDown(e, tbodyRef, row, onRowIndexChange)
+      }
     >
       {children}
     </tr>
   );
 }
+
+const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
+  event.stopPropagation();
+  const currentRow = tbodyRef.current?.children[row.id];
+  const rowInputs =
+    Array.from(event.currentTarget.querySelectorAll("input")) || [];
+  const currentPosition = rowInputs.indexOf(event.target);
+
+  switch (event.key) {
+    case "ArrowRight":
+      rowInputs[currentPosition + 1] && rowInputs[currentPosition + 1].focus();
+      break;
+    case "ArrowLeft":
+      rowInputs[currentPosition - 1] && rowInputs[currentPosition - 1].focus();
+      break;
+    case "ArrowUp":
+      const prevRow = currentRow?.previousElementSibling;
+      if (prevRow) {
+        onRowIndexChange(prevRow.rowIndex - 1);
+      }
+      const prevRowInputs = prevRow?.querySelectorAll("input") || [];
+      prevRowInputs[currentPosition] && prevRowInputs[currentPosition].focus();
+      break;
+    case "ArrowDown":
+      const nextRow = currentRow?.nextElementSibling;
+      if (nextRow) {
+        onRowIndexChange(nextRow.rowIndex - 1);
+      }
+      const nextRowInputs = nextRow?.querySelectorAll("input") || [];
+      nextRowInputs[currentPosition] && nextRowInputs[currentPosition].focus();
+      break;
+    default:
+      break;
+  }
+};
+
+const findReactComponent = function (el) {
+  for (const key in el) {
+    console.log(key);
+    if (key.startsWith("__reactInternalInstance$")) {
+      const fiberNode = el[key];
+
+      return fiberNode && fiberNode.return && fiberNode.return.stateNode;
+    }
+  }
+  return null;
+};
 
 function TableData({ cell, row, selectedRow, onChange: OnTdChange }) {
   return (
@@ -214,32 +273,3 @@ function TableData({ cell, row, selectedRow, onChange: OnTdChange }) {
     </td>
   );
 }
-
-const handleTableRowKeyDown = (event, tbodyRef, row) => {
-  event.stopPropagation();
-  const currentRow = tbodyRef.current?.children[row.id];
-  const rowInputs =
-    Array.from(event.currentTarget.querySelectorAll("input")) || [];
-  const currentPosition = rowInputs.indexOf(event.target);
-
-  switch (event.key) {
-    case "ArrowRight":
-      rowInputs[currentPosition + 1] && rowInputs[currentPosition + 1].focus();
-      break;
-    case "ArrowLeft":
-      rowInputs[currentPosition - 1] && rowInputs[currentPosition - 1].focus();
-      break;
-    case "ArrowUp":
-      const prevRow = currentRow?.previousElementSibling;
-      const prevRowInputs = prevRow?.querySelectorAll("input") || [];
-      prevRowInputs[currentPosition] && prevRowInputs[currentPosition].focus();
-      break;
-    case "ArrowDown":
-      const nextRow = currentRow?.nextElementSibling;
-      const nextRowInputs = nextRow?.querySelectorAll("input") || [];
-      nextRowInputs[currentPosition] && nextRowInputs[currentPosition].focus();
-      break;
-    default:
-      break;
-  }
-};

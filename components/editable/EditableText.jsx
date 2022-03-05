@@ -61,8 +61,9 @@ export default function EditableText({
       <input
         type="text"
         defaultValue={unFormattedValue?.toString() ?? ""}
-        className="w-full p-0 border-0"
+        className="w-full p-0 border-0 "
         onChange={onInputChange}
+        disabled={disabled}
       />
     );
   }
