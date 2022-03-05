@@ -52,7 +52,9 @@ export default function Grid({
       );
 
       if (Object.keys(changes).length !== 0) {
+        console.log();
         onRowChange?.({ row: selectedRow, changes });
+        selectedRow.original = { ...selectedRow.original, ...changes };
       }
     }
     setSelectedRow(row);
@@ -76,6 +78,7 @@ export default function Grid({
   const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
     //console.log("updateTableData", row, propertyName, newValue, oldValue);
     row.values[propertyName] = newValue;
+    onCellChange?.({ row: row, propertyName, newValue, oldValue });
     setSelectedRow(row);
 
     // setTableData((prev) => {
