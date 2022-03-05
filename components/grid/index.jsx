@@ -27,7 +27,7 @@ function getTableOptions(columns, data, initialState) {
   };
 }
 
-export default function Index({
+export default function Grid({
   columns,
   data,
   onCellChange = undefined,
@@ -41,44 +41,64 @@ export default function Index({
   }, [data]);
 
   const updateSelectedRow = (row) => {
-    if (selectedRow?.id == row?.id) {
+    if (!selectedRow?.id == row?.id) {
       return;
     }
 
-    setSelectedRow(async (prevRow) => {
-      if (prevRow?.state.editedProperties.size > 0) {
-        const diff = getDiff(prevRow.original, prevRow.values);
-        onRowChange?.({ row: prevRow, changes: diff });
-      }
-      await prevRow?.setState(initialRowState);
+    if (selectedRow) {
+      const changes = findVariantsElement(
+        selectedRow.original,
+        selectedRow.values
+      );
 
-      return row;
-    });
+      if (Object.keys(changes).length !== 0) {
+        onRowChange?.({ row: selectedRow, changes });
+      }
+    }
+    setSelectedRow(row);
+
+    // setSelectedRow((prevRow) => {
+    //   if (prevRow) {
+    //     if (prevRow.state?.editedProperties.size > 0) {
+    //       const changes = {};
+    //       for (let item of prevRow.state?.editedProperties) {
+    //         changes[item] = "X";
+    //         console.log("item", item);
+    //       }
+    //       onRowChange?.({ row: prevRow, changes });
+    //     }
+    //     // if (prevRow?.setState) await prevRow?.setState(initialRowState);
+    //   }
+    //   return row;
+    // });
   };
 
   const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
-    setTableData((prev) => {
-      const newTableData = {
-        total: prev.total,
-        data: prev?.data?.map((item, index) => {
-          if (item.id === row.original.id) {
-            row.values[propertyName] = newValue;
-            const newRow = {
-              ...item,
-              [propertyName]: newValue,
-            };
+    //console.log("updateTableData", row, propertyName, newValue, oldValue);
+    row.values[propertyName] = newValue;
+    setSelectedRow(row);
 
-            setSelectedRow(row);
+    // setTableData((prev) => {
+    //   const newTableData = {
+    //     total: prev.total,
+    //     data: prev?.data?.map((item, index) => {
+    //       if (item.id === row.original.id) {
+    //         const newRow = {
+    //           ...item,
+    //           [propertyName]: newValue,
+    //         };
 
-            onCellChange?.({ row: newRow, propertyName, newValue, oldValue });
-            return newRow;
-          }
-          return item;
-        }),
-      };
-      // console.log("updateTableData", newTableData);
-      return newTableData;
-    });
+    //         setSelectedRow(row);
+
+    //         onCellChange?.({ row: newRow, propertyName, newValue, oldValue });
+    //         return newRow;
+    //       }
+    //       return item;
+    //     }),
+    //   };
+    //   // console.log("updateTableData", newTableData);
+    //   return newTableData;
+    // });
   };
 
   const tableRef = useRef(null);
@@ -181,14 +201,13 @@ export default function Index({
     </>
   );
 }
-
-const getDiff = (object1, object2) => {
+const findVariantsElement = (main, compareWith) => {
   const result = {};
-  Object.keys(object1).forEach((r) => {
-    const element = object1[r];
-    if (object2[r]) {
-      if (element !== object2[r]) {
-        result[r] = object2[r];
+  Object.keys(main).forEach((r) => {
+    const element = main[r];
+    if (compareWith[r]) {
+      if (element !== compareWith[r]) {
+        result[r] = compareWith[r];
       }
     }
   });
