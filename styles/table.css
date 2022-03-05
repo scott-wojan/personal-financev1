@@ -28,11 +28,17 @@ table {
       border-right: 0;
     } */
   }
-  [contenteditable="true"] {
+  input[type="text"] {
+    @apply bg-transparent;
+  }
+  input[type="text"]:focus {
+    @apply bg-gray-50;
+  }
+  /* [contenteditable="true"] {
     @apply border border-solid border-transparent outline-none w-full;
   }
   [contenteditable="true"]:active,
   [contenteditable="true"]:focus {
     @apply border border-solid border-primary outline-none;
-  }
+  } */
 }

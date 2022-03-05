@@ -39,7 +39,7 @@ export default function EditableText({
     }
   }, [formatting, value, unFormattedValue]);
 
-  const onBlur = (e) => {
+  const onInputChange = (e) => {
     const newValue = e.target.value;
     // console.log("onBlur", value, newValue, onChange);
     // setIsEditing(false);
@@ -51,8 +51,8 @@ export default function EditableText({
     <input
       type="text"
       defaultValue={unFormattedValue?.toString() ?? ""}
-      className="w-full"
-      onChange={onBlur}
+      className="w-full p-0 border-0 "
+      onChange={onInputChange}
     />
   );
 
@@ -61,8 +61,8 @@ export default function EditableText({
       <input
         type="text"
         defaultValue={unFormattedValue?.toString() ?? ""}
-        className="w-full"
-        onBlur={onBlur}
+        className="w-full p-0 border-0"
+        onChange={onInputChange}
       />
     );
   }
