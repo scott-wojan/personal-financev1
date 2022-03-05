@@ -1,3 +1,4 @@
+import { formattingHandler } from "components/utils/formatting";
 import React, { forwardRef, useMemo, useRef, useState } from "react";
 import {
   useFlexLayout,
@@ -6,7 +7,27 @@ import {
   useTable,
 } from "react-table";
 
-const StyledGrid = ({ data }) => {
+const DisplayCell = ({ value: initialValue }) => {
+  // We need to keep and update the state of the cell normally
+  const [value, setValue] = React.useState(initialValue);
+
+  // If the initialValue is changed external, sync it up with our state
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  return (
+    <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+      {value ?? ""}
+    </p>
+  );
+};
+
+const defaultColumn = {
+  Cell: DisplayCell,
+};
+
+const StyledGrid = () => {
   const columns = useMemo(
     () => [
       {
@@ -20,6 +41,18 @@ const StyledGrid = ({ data }) => {
       {
         Header: "Status",
         accessor: "status",
+        Cell: ({ value }) => {
+          const color = value === "Assigned" ? "green" : "blue";
+          return (
+            <div
+              className={`flex items-center justify-center w-20 h-6 bg-${color}-200 rounded-md`}
+            >
+              <span className={`text-xs font-normal text-${color}-500`}>
+                {value}
+              </span>
+            </div>
+          );
+        },
       },
       {
         Header: "Priority",
@@ -45,13 +78,42 @@ const StyledGrid = ({ data }) => {
     []
   );
 
+  const data = {
+    total: "137",
+    data: [
+      {
+        project: "Software Developer",
+        type: "Development",
+        status: "Assigned",
+        priority: "High",
+        owner: "Jason Smith",
+        createdOn: "6/28/2020",
+        dueOn: "9/28/2020",
+      },
+      {
+        project: "Jade's website",
+        type: "Design",
+        status: "Pending",
+        priority: "Medium",
+        owner: "Jason Smith",
+        createdOn: "6/28/2020",
+        dueOn: "9/28/2020",
+      },
+    ],
+  };
+
   const [dropdownStatus, setDropdownStatus] = useState(0);
   const [tableData, setTableData] = useState(data);
   const tableRef = useRef(null);
   const tbodyRef = useRef(null);
 
   const tableInstance = useTable(
-    getTableOptions(columns, tableData, initialTableState),
+    getTableOptions({
+      defaultColumn,
+      columns,
+      data: tableData,
+      initialState: initialTableState,
+    }),
     useFlexLayout,
     useRowState,
     useRowSelect
@@ -78,10 +140,13 @@ const StyledGrid = ({ data }) => {
           headerGroups={headerGroups}
         />
         <TableBody
+          {...getTableBodyProps()}
           ref={tbodyRef}
+          rows={rows}
+          prepareRow={prepareRow}
+          // @ts-ignore
           dropdownStatus={dropdownStatus}
           setDropdownStatus={setDropdownStatus}
-          {...getTableBodyProps()}
         />
       </table>
 
@@ -94,9 +159,10 @@ export default StyledGrid;
 const initialTableState = {};
 const initialRowState = {};
 
-function getTableOptions(columns, data, initialState) {
+function getTableOptions({ defaultColumn, columns, data, initialState }) {
   return {
     columns,
+    defaultColumn,
     data: data.data,
     autoResetRowState: false,
     initialState,
@@ -132,7 +198,7 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
                   key={columnIndex}
                   className="w-24 py-3 pl-3 whitespace-no-wrap cursor-pointer first-dropdown"
                   onClick={() => {
-                    dropdownStatus == columnIndex
+                    dropdownStatus == 0
                       ? setDropdownStatus(
                           headerGroup.headers.length + columnIndex
                         )
@@ -283,317 +349,58 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
   );
 }
 
-const poop = forwardRef((props, ref) => {
-  const { x } = props;
-  return <div ref={ref}>{x}</div>;
-});
-poop.displayName = "poop";
-
 const TableBody = forwardRef((props, ref) => {
   // @ts-ignore
-  const { dropdownStatus, setDropdownStatus, ...rest } = props;
+  const { dropdownStatus, setDropdownStatus, rows, prepareRow, ...rest } =
+    props;
+
   return (
     <tbody ref={ref} {...rest}>
-      <TableRow
-        dropdownStatus={dropdownStatus}
-        setDropdownStatus={setDropdownStatus}
-      />
-      <tr className="border-b border-gray-300 dark:border-gray-200">
-        <td className="w-24 py-3 pl-3">
-          <div className="flex items-center">
-            <a
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(2)
-                  : setDropdownStatus(0);
-              }}
-              className="ml-2 mr-2 text-gray-800 border border-transparent rounded cursor-pointer focus:outline-none dark:text-gray-100 lg:ml-4 sm:mr-0"
-              href="#"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="icon icon-tabler icon-tabler-chevron-down"
-                width={16}
-                height={16}
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path stroke="none" d="M0 0h24v24H0z" />
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </a>
-          </div>
-        </td>
-        <td className="w-32 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            Jade's website
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            Design
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <div className="flex items-center justify-center w-20 h-6 bg-red-200 rounded-md">
-            <span className="text-xs font-normal text-red-500">Pending</span>
-          </div>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            Medium
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            Jason Smith
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            6/28/2020
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            9/28/2020
-          </p>
-        </td>
-        <td className="w-32 pl-4 pr-4 whitespace-no-wrap">
-          <div className="relative">
-            <div
-              className="relative z-0 flex items-center justify-between block w-full px-2 py-2 text-xs text-gray-600 bg-transparent bg-white border border-gray-300 rounded cursor-pointer dark:text-gray-400 dark:bg-gray-800 dark:border-gray-200 form-select xl:px-3"
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(16)
-                  : setDropdownStatus(0);
-              }}
-            >
-              <p className="font-normal leading-3 tracking-normal">
-                Edit Project
-              </p>
-              <div className="cursor-pointer">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="hidden icon icon-tabler icon-tabler-chevron-up"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <polyline points="6 15 12 9 18 15" />
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="icon icon-tabler icon-tabler-chevron-up"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
-            </div>
-            {dropdownStatus == 16 && (
-              <ul className="absolute z-10 w-48 py-1 mt-2 transition duration-300 bg-white rounded shadow dark:bg-gray-800">
-                <li className="px-3 py-3 text-sm font-normal leading-3 tracking-normal text-gray-600 cursor-pointer dark:text-gray-400 hover:bg-gray-100">
-                  Edit Project
-                </li>
-                <li className="px-3 py-3 text-sm font-normal leading-3 tracking-normal text-gray-600 cursor-pointer dark:text-gray-400 hover:bg-gray-100">
-                  Delete Project
-                </li>
-              </ul>
-            )}
-          </div>
-        </td>
-      </tr>
-      {dropdownStatus == 2 && (
-        <tr className="detail-row">
-          <td colSpan={9}>
-            <div className="flex items-stretch w-full border-b border-gray-300 dark:border-gray-200">
-              <ul>
-                <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
-                  <a
-                    className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                    href="#"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="icon icon-tabler icon-tabler-grid"
-                      width={20}
-                      height={20}
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" />
-                      <rect x={4} y={4} width={6} height={6} rx={1} />
-                      <rect x={14} y={4} width={6} height={6} rx={1} />
-                      <rect x={4} y={14} width={6} height={6} rx={1} />
-                      <rect x={14} y={14} width={6} height={6} rx={1} />
-                    </svg>
-                  </a>
-                </li>
-                <li
-                  autoFocus
-                  className="flex items-center justify-center cursor-pointer"
-                >
-                  <a
-                    className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none focus:bg-indigo-700 focus:text-white"
-                    href="#"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="icon icon-tabler icon-tabler-puzzle"
-                      width={20}
-                      height={20}
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" />
-                      <path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1" />
-                    </svg>
-                  </a>
-                </li>
-                <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
-                  <a
-                    className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                    href="#"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="icon icon-tabler icon-tabler-compass"
-                      width={20}
-                      height={20}
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" />
-                      <polyline points="8 16 10 10 16 8 14 14 8 16" />
-                      <circle cx={12} cy={12} r={9} />
-                    </svg>
-                  </a>
-                </li>
-                <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
-                  <a
-                    className="p-3 text-gray-800 border border-transparent dark:text-gray-100 hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                    href="#"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="icon icon-tabler icon-tabler-code"
-                      width={20}
-                      height={20}
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" />
-                      <polyline points="7 8 3 12 7 16" />
-                      <polyline points="17 8 21 12 17 16" />
-                      <line x1={14} y1={4} x2={10} y2={20} />
-                    </svg>
-                  </a>
-                </li>
-              </ul>
-              <div className="w-full bg-white border-l border-gray-300 dark:bg-gray-800 dark:border-gray-200">
-                <h4 className="w-full py-3 pl-10 text-sm text-gray-800 bg-gray-100 dark:text-gray-100">
-                  Software Development Project
-                </h4>
-                <div className="px-8 py-6 bg-white dark:bg-gray-800">
-                  <div className="flex items-start">
-                    <div className="w-1/3">
-                      <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                        Owner
-                      </p>
-                      <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                        Jason Smith
-                      </h5>
-                    </div>
-                    <div className="w-1/3">
-                      <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                        Type
-                      </p>
-                      <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                        Development
-                      </h5>
-                    </div>
-                    <div className="w-1/3">
-                      <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                        Time Spent
-                      </p>
-                      <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                        1440 Hours, 45 Mins
-                      </h5>
-                    </div>
-                  </div>
-                  <div className="flex items-start mt-6">
-                    <div className="w-1/3">
-                      <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                        Project
-                      </p>
-                      <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                        Create new features for the app
-                      </h5>
-                    </div>
-                    <div className="w-1/3">
-                      <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                        Priority
-                      </p>
-                      <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                        High
-                      </h5>
-                    </div>
-                    <div className="w-1/3">
-                      <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                        Incharge officer(s)
-                      </p>
-                      <h5 className="text-xs font-normal text-indigo-700">
-                        Saul Berenson &amp; Nicholas Brody
-                      </h5>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      )}
+      {rows.map((row, rowIndex) => {
+        prepareRow(row);
+        return (
+          <TableRow
+            key={rowIndex}
+            row={row}
+            dropdownStatus={dropdownStatus}
+            setDropdownStatus={setDropdownStatus}
+          />
+        );
+      })}
     </tbody>
   );
 });
 TableBody.displayName = "TableBody";
 
-function TableRow({ dropdownStatus, setDropdownStatus }) {
+function TableCell({ cell, row, selectedRow, onChange: onCellChange }) {
+  return (
+    <td {...cell.getCellProps()}>
+      {cell.render("Cell", {
+        isInEditMode: selectedRow?.id == row.id,
+        options: cell.column.options,
+        onChange: async (newValue, oldValue) => {
+          onCellChange?.({
+            row: row,
+            propertyName: cell.column.id,
+            newValue,
+            oldValue,
+          });
+        },
+        formatting:
+          cell.column.formatting &&
+          new Proxy(
+            {
+              ...cell.column.formatting,
+              data: cell.row.values,
+            },
+            formattingHandler
+          ),
+      })}
+    </td>
+  );
+}
+
+function TableRow({ row, dropdownStatus, setDropdownStatus }) {
   return (
     <>
       <tr className="border-b border-gray-300 dark:border-gray-200">
@@ -602,8 +409,14 @@ function TableRow({ dropdownStatus, setDropdownStatus }) {
             <a
               onClick={() => {
                 dropdownStatus == 0
-                  ? setDropdownStatus(1)
+                  ? setDropdownStatus(row.index + 1)
                   : setDropdownStatus(0);
+
+                // dropdownStatus == row.index
+                // ? setDropdownStatus(
+                //     headerGroup.headers.length + row.index
+                //   )
+                // : setDropdownStatus(0);
               }}
               className="ml-2 mr-2 text-gray-800 border border-transparent rounded cursor-pointer focus:outline-none dark:text-gray-100 lg:ml-4 sm:mr-0"
               href="#"
@@ -612,101 +425,20 @@ function TableRow({ dropdownStatus, setDropdownStatus }) {
             </a>
           </div>
         </td>
-        <td className="w-32 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            Software Develop…
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            Development
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <div className="flex items-center justify-center w-20 h-6 bg-blue-200 rounded-md">
-            <span className="text-xs font-normal text-blue-500">Assigned</span>
-          </div>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            High
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            Jason Smith
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            6/28/2020
-          </p>
-        </td>
-        <td className="w-32 pl-4 whitespace-no-wrap">
-          <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-            9/28/2020
-          </p>
-        </td>
-        <td className="w-32 pl-4 pr-4 whitespace-no-wrap">
-          <div className="relative">
-            <div
-              className="relative z-0 flex items-center justify-between block w-full px-2 py-2 text-xs text-gray-600 bg-transparent bg-white border border-gray-300 rounded cursor-pointer dark:text-gray-400 dark:bg-gray-800 dark:border-gray-200 form-select xl:px-3"
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(15)
-                  : setDropdownStatus(0);
-              }}
-            >
-              <p className="font-normal leading-3 tracking-normal">
-                Edit Project
-              </p>
-              <div className="cursor-pointer">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="hidden icon icon-tabler icon-tabler-chevron-up"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <polyline points="6 15 12 9 18 15" />
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="icon icon-tabler icon-tabler-chevron-up"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
-            </div>
-            {dropdownStatus == 15 && (
-              <ul className="absolute z-10 w-48 py-1 mt-2 transition duration-300 bg-white rounded shadow dark:bg-gray-800">
-                <li className="px-3 py-3 text-sm font-normal leading-3 tracking-normal text-gray-600 cursor-pointer dark:text-gray-400 hover:bg-gray-100">
-                  Edit Project
-                </li>
-                <li className="px-3 py-3 text-sm font-normal leading-3 tracking-normal text-gray-600 cursor-pointer dark:text-gray-400 hover:bg-gray-100">
-                  Delete Project
-                </li>
-              </ul>
-            )}
-          </div>
-        </td>
+
+        {row.cells.map((cell, cellIndex) => {
+          return (
+            <TableCell
+              key={cellIndex}
+              cell={cell}
+              row={row}
+              // selectedRow={selectedRow}
+              // onChange={updateTableData}
+            />
+          );
+        })}
       </tr>
-      {dropdownStatus == 1 && <TableSubRow />}
+      {dropdownStatus == row.index + 1 && <TableSubRow />}
     </>
   );
 }

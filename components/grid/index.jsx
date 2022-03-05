@@ -246,14 +246,14 @@ const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
 //   return null;
 // };
 
-function TableData({ cell, row, selectedRow, onChange: OnTdChange }) {
+function TableData({ cell, row, selectedRow, onChange: onCellChange }) {
   return (
     <td {...cell.getCellProps()}>
       {cell.render("Cell", {
         isInEditMode: selectedRow?.id == row.id,
         options: cell.column.options,
         onChange: async (newValue, oldValue) => {
-          OnTdChange?.({
+          onCellChange?.({
             row: row,
             propertyName: cell.column.id,
             newValue,
