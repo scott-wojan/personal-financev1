@@ -103,6 +103,8 @@ export default function Grid({
   };
 
   const tableRef = useRef(null);
+  const tbodyRef = React.useRef(null);
+
   useOnClickOutside(tableRef, () => updateSelectedRow(null)); //TODO: include in updateSelectedRowIndex
   const tableInstance = useTable(
     getTableOptions(columns, tableData, initialTableState),
@@ -120,6 +122,39 @@ export default function Grid({
     state: {},
   } = tableInstance;
 
+  const handleKeyDown = (event, row) => {
+    event.stopPropagation();
+    const currentRow = tbodyRef.current?.children[row.id];
+    const rowInputs =
+      Array.from(event.currentTarget.querySelectorAll("input")) || [];
+    const currentPosition = rowInputs.indexOf(event.target);
+
+    switch (event.key) {
+      case "ArrowRight":
+        rowInputs[currentPosition + 1] &&
+          rowInputs[currentPosition + 1].focus();
+        break;
+      case "ArrowLeft":
+        rowInputs[currentPosition - 1] &&
+          rowInputs[currentPosition - 1].focus();
+        break;
+      case "ArrowUp":
+        const prevRow = currentRow?.previousElementSibling;
+        const prevRowInputs = prevRow?.querySelectorAll("input") || [];
+        prevRowInputs[currentPosition] &&
+          prevRowInputs[currentPosition].focus();
+        break;
+      case "ArrowDown":
+        const nextRow = currentRow?.nextElementSibling;
+        const nextRowInputs = nextRow?.querySelectorAll("input") || [];
+        nextRowInputs[currentPosition] &&
+          nextRowInputs[currentPosition].focus();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <>
       <table {...getTableProps()} ref={tableRef}>
@@ -134,7 +169,7 @@ export default function Grid({
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
+        <tbody {...getTableBodyProps()} ref={tbodyRef}>
           {rows.map((row, rowIndex) => {
             prepareRow(row);
             return (
@@ -144,6 +179,7 @@ export default function Grid({
                 onClick={() => {
                   updateSelectedRow(row);
                 }}
+                onKeyDown={(e) => handleKeyDown(e, row)}
               >
                 {row.cells.map((cell, cellIndex) => {
                   return (

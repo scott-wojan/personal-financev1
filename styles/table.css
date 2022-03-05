@@ -17,6 +17,7 @@ table {
       }
     } */
   }
+
   th {
     @apply font-normal text-left;
   }
