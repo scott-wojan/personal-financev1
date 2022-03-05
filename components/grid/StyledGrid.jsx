@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { forwardRef, useMemo, useRef, useState } from "react";
 import {
   useFlexLayout,
   useRowSelect,
@@ -139,7 +139,7 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
                       : setDropdownStatus(0);
                   }}
                 >
-                  <div className="flex items-center">
+                  <div className="relative flex items-center justify-between">
                     <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
                       {column.render("Header")}
                     </p>
@@ -152,6 +152,130 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
                 </th>
               );
             })}
+            {/* <th
+              className="w-32 whitespace-no-wrap cursor-pointer first-dropdown"
+              onClick={() => {
+                dropdownStatus == 0
+                  ? setDropdownStatus(8)
+                  : setDropdownStatus(0);
+              }}
+            >
+              <div className="relative flex items-center justify-between">
+                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+                  Project
+                </p>
+                <ChevronDown />
+                {dropdownStatus == 8 && <HeaderDropDown />}
+              </div>
+            </th>
+
+            <th
+              onClick={() => {
+                dropdownStatus == 0
+                  ? setDropdownStatus(9)
+                  : setDropdownStatus(0);
+              }}
+              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
+            >
+              <div className="relative flex items-center justify-between">
+                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+                  Type
+                </p>
+                <ChevronDown />
+                {dropdownStatus == 9 && <HeaderDropDown />}
+              </div>
+            </th>
+
+            <th
+              onClick={() => {
+                dropdownStatus == 0
+                  ? setDropdownStatus(10)
+                  : setDropdownStatus(0);
+              }}
+              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
+            >
+              <div className="relative flex items-center justify-between">
+                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+                  Status
+                </p>
+                <ChevronDown />
+                {dropdownStatus == 10 && <HeaderDropDown />}
+              </div>
+            </th>
+
+            <th
+              onClick={() => {
+                dropdownStatus == 0
+                  ? setDropdownStatus(11)
+                  : setDropdownStatus(0);
+              }}
+              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
+            >
+              <div className="relative flex items-center justify-between">
+                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+                  Priority
+                </p>
+                <ChevronDown />
+                {dropdownStatus == 11 && <HeaderDropDown />}
+              </div>
+            </th>
+
+            <th
+              onClick={() => {
+                dropdownStatus == 0
+                  ? setDropdownStatus(12)
+                  : setDropdownStatus(0);
+              }}
+              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
+            >
+              <div className="relative flex items-center justify-between">
+                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+                  Owner
+                </p>
+                <ChevronDown />
+                {dropdownStatus == 12 && <HeaderDropDown />}
+              </div>
+            </th>
+
+            <th
+              onClick={() => {
+                dropdownStatus == 0
+                  ? setDropdownStatus(13)
+                  : setDropdownStatus(0);
+              }}
+              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
+            >
+              <div className="relative flex items-center justify-between ">
+                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+                  Created on
+                </p>
+                <ChevronDown />
+                {dropdownStatus == 13 && <HeaderDropDown />}
+              </div>
+            </th>
+
+            <th
+              onClick={() => {
+                dropdownStatus == 0
+                  ? setDropdownStatus(14)
+                  : setDropdownStatus(0);
+              }}
+              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
+            >
+              <div className="relative flex items-center justify-between ">
+                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+                  Due on
+                </p>
+                <ChevronDown />
+                {dropdownStatus == 14 && <HeaderDropDown />}
+              </div>
+            </th>
+
+            <th className="w-32 pl-4 pr-12 whitespace-no-wrap border-l border-gray-300 dark:border-gray-200">
+              <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
+                Actions
+              </p>
+            </th> */}
           </tr>
         );
       })}
@@ -159,7 +283,15 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
   );
 }
 
-function TableBody({ ref, dropdownStatus, setDropdownStatus, ...rest }) {
+const poop = forwardRef((props, ref) => {
+  const { x } = props;
+  return <div ref={ref}>{x}</div>;
+});
+poop.displayName = "poop";
+
+const TableBody = forwardRef((props, ref) => {
+  // @ts-ignore
+  const { dropdownStatus, setDropdownStatus, ...rest } = props;
   return (
     <tbody ref={ref} {...rest}>
       <TableRow
@@ -176,7 +308,7 @@ function TableBody({ ref, dropdownStatus, setDropdownStatus, ...rest }) {
                   : setDropdownStatus(0);
               }}
               className="ml-2 mr-2 text-gray-800 border border-transparent rounded cursor-pointer focus:outline-none dark:text-gray-100 lg:ml-4 sm:mr-0"
-              href="javascript: void(0)"
+              href="#"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -298,7 +430,7 @@ function TableBody({ ref, dropdownStatus, setDropdownStatus, ...rest }) {
                 <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
                   <a
                     className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                    href="javascript: void(0)"
+                    href="#"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -326,7 +458,7 @@ function TableBody({ ref, dropdownStatus, setDropdownStatus, ...rest }) {
                 >
                   <a
                     className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none focus:bg-indigo-700 focus:text-white"
-                    href="javascript: void(0)"
+                    href="#"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -348,7 +480,7 @@ function TableBody({ ref, dropdownStatus, setDropdownStatus, ...rest }) {
                 <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
                   <a
                     className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                    href="javascript: void(0)"
+                    href="#"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -371,7 +503,7 @@ function TableBody({ ref, dropdownStatus, setDropdownStatus, ...rest }) {
                 <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
                   <a
                     className="p-3 text-gray-800 border border-transparent dark:text-gray-100 hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                    href="javascript: void(0)"
+                    href="#"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -458,7 +590,8 @@ function TableBody({ ref, dropdownStatus, setDropdownStatus, ...rest }) {
       )}
     </tbody>
   );
-}
+});
+TableBody.displayName = "TableBody";
 
 function TableRow({ dropdownStatus, setDropdownStatus }) {
   return (
@@ -473,7 +606,7 @@ function TableRow({ dropdownStatus, setDropdownStatus }) {
                   : setDropdownStatus(0);
               }}
               className="ml-2 mr-2 text-gray-800 border border-transparent rounded cursor-pointer focus:outline-none dark:text-gray-100 lg:ml-4 sm:mr-0"
-              href="javascript: void(0)"
+              href="#"
             >
               <ChevronDown />
             </a>
@@ -587,7 +720,7 @@ function TableSubRow({}) {
             <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
               <a
                 className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                href="javascript: void(0)"
+                href="#"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -615,7 +748,7 @@ function TableSubRow({}) {
             >
               <a
                 className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none focus:bg-indigo-700 focus:text-white"
-                href="javascript: void(0)"
+                href="#"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -637,7 +770,7 @@ function TableSubRow({}) {
             <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
               <a
                 className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                href="javascript: void(0)"
+                href="#"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -660,7 +793,7 @@ function TableSubRow({}) {
             <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
               <a
                 className="p-3 text-gray-800 border border-transparent dark:text-gray-100 hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
-                href="javascript: void(0)"
+                href="#"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -793,7 +926,7 @@ function Pagination({}) {
     <div className="container flex items-center justify-center pt-8 mx-auto sm:justify-end">
       <a
         className="mr-5 text-gray-600 border border-gray-200 rounded dark:text-gray-400 focus:outline-none focus:border-gray-800 focus:shadow-outline-gray"
-        href="javascript: void(0)"
+        href="#"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -826,7 +959,7 @@ function Pagination({}) {
       </p>
       <a
         className="mx-5 text-gray-600 border border-gray-200 rounded dark:text-gray-400 focus:outline-none focus:border-gray-800 focus:shadow-outline-gray"
-        href="javascript: void(0)"
+        href="#"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
