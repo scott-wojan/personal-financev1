@@ -234,17 +234,17 @@ const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
   }
 };
 
-const findReactComponent = function (el) {
-  for (const key in el) {
-    console.log(key);
-    if (key.startsWith("__reactInternalInstance$")) {
-      const fiberNode = el[key];
+// const findReactComponent = function (el) {
+//   for (const key in el) {
+//     console.log(key);
+//     if (key.startsWith("__reactInternalInstance$")) {
+//       const fiberNode = el[key];
 
-      return fiberNode && fiberNode.return && fiberNode.return.stateNode;
-    }
-  }
-  return null;
-};
+//       return fiberNode && fiberNode.return && fiberNode.return.stateNode;
+//     }
+//   }
+//   return null;
+// };
 
 function TableData({ cell, row, selectedRow, onChange: OnTdChange }) {
   return (

@@ -24,9 +24,6 @@ table {
   th,
   td {
     @apply text-left border border-gray-300 cursor-pointer flex justify-between;
-    /* :last-child {
-      border-right: 0;
-    } */
   }
   input[type="text"] {
     @apply bg-white text-black;
