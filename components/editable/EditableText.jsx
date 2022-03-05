@@ -20,7 +20,7 @@ export default function EditableText({
         onChange?.(debouncedUnFormattedValue, value);
       }
     },
-    [debouncedUnFormattedValue] // Only call effect if debounced search term changes
+    [debouncedUnFormattedValue, onChange, value] // Only call effect if debounced search term changes
   );
 
   useEffect(() => {

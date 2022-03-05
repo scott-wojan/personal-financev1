@@ -7,15 +7,14 @@ table {
   }
   tbody {
     tr {
-      @apply text-gray-800 hover:bg-gray-100 border-b border-t border-gray-100;
+      @apply text-gray-800  border-b border-t border-gray-100;
     }
-  }
-  tr {
-    /* :last-child {
-      td {
-        border-bottom: 0;
-      }
-    } */
+    tr:hover:not(.active) {
+      @apply bg-gray-200;
+      /* td input[type="text"] {
+        @apply bg-gray-200;
+      } */
+    }
   }
 
   th {
@@ -30,7 +29,7 @@ table {
     } */
   }
   input[type="text"] {
-    @apply bg-transparent;
+    @apply bg-white text-black;
   }
   input[type="text"]:focus {
     @apply bg-gray-50;
@@ -42,4 +41,10 @@ table {
   [contenteditable="true"]:focus {
     @apply border border-solid border-primary outline-none;
   } */
+}
+tr.active {
+  @apply bg-gray-600;
+  td {
+    @apply text-white;
+  }
 }

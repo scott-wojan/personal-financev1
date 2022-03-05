@@ -1,5 +1,6 @@
 import useOnClickOutside from "components/hooks/useOnClickOutside";
 import { formattingHandler } from "components/utils/formatting";
+import { getDiff } from "components/utils/getDiff";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   useFlexLayout,
@@ -39,15 +40,13 @@ export default function Grid({
   }, [data]);
 
   const updateSelectedRow = (row) => {
-    if (!selectedRow?.id == row?.id) {
+    if (selectedRow?.id == row?.id) {
+      //row didn't change
       return;
     }
 
     if (selectedRow) {
-      const changes = findVariantsElement(
-        selectedRow.original,
-        selectedRow.values
-      );
+      const changes = getDiff(selectedRow.original, selectedRow.values);
 
       if (Object.keys(changes).length !== 0) {
         console.log();
@@ -122,39 +121,6 @@ export default function Grid({
     state: {},
   } = tableInstance;
 
-  const handleKeyDown = (event, row) => {
-    event.stopPropagation();
-    const currentRow = tbodyRef.current?.children[row.id];
-    const rowInputs =
-      Array.from(event.currentTarget.querySelectorAll("input")) || [];
-    const currentPosition = rowInputs.indexOf(event.target);
-
-    switch (event.key) {
-      case "ArrowRight":
-        rowInputs[currentPosition + 1] &&
-          rowInputs[currentPosition + 1].focus();
-        break;
-      case "ArrowLeft":
-        rowInputs[currentPosition - 1] &&
-          rowInputs[currentPosition - 1].focus();
-        break;
-      case "ArrowUp":
-        const prevRow = currentRow?.previousElementSibling;
-        const prevRowInputs = prevRow?.querySelectorAll("input") || [];
-        prevRowInputs[currentPosition] &&
-          prevRowInputs[currentPosition].focus();
-        break;
-      case "ArrowDown":
-        const nextRow = currentRow?.nextElementSibling;
-        const nextRowInputs = nextRow?.querySelectorAll("input") || [];
-        nextRowInputs[currentPosition] &&
-          nextRowInputs[currentPosition].focus();
-        break;
-      default:
-        break;
-    }
-  };
-
   return (
     <>
       <table {...getTableProps()} ref={tableRef}>
@@ -173,42 +139,25 @@ export default function Grid({
           {rows.map((row, rowIndex) => {
             prepareRow(row);
             return (
-              <tr
+              <TableRow
                 key={rowIndex}
-                {...row.getRowProps()}
-                onClick={() => {
-                  updateSelectedRow(row);
-                }}
-                onKeyDown={(e) => handleKeyDown(e, row)}
+                tbodyRef={tbodyRef}
+                row={row}
+                selectedRow={selectedRow}
+                onClick={updateSelectedRow}
               >
                 {row.cells.map((cell, cellIndex) => {
                   return (
-                    <td key={cellIndex} {...cell.getCellProps()}>
-                      {cell.render("Cell", {
-                        isInEditMode: selectedRow?.id == row.id,
-                        options: cell.column.options,
-                        onChange: async (newValue, oldValue) => {
-                          updateTableData?.({
-                            row: row,
-                            propertyName: cell.column.id,
-                            newValue,
-                            oldValue,
-                          });
-                        },
-                        formatting:
-                          cell.column.formatting &&
-                          new Proxy(
-                            {
-                              ...cell.column.formatting,
-                              data: cell.row.values,
-                            },
-                            formattingHandler
-                          ),
-                      })}
-                    </td>
+                    <TableData
+                      key={cellIndex}
+                      cell={cell}
+                      row={row}
+                      selectedRow={selectedRow}
+                      onChange={updateTableData}
+                    />
                   );
                 })}
-              </tr>
+              </TableRow>
             );
           })}
         </tbody>
@@ -216,15 +165,81 @@ export default function Grid({
     </>
   );
 }
-const findVariantsElement = (main, compareWith) => {
-  const result = {};
-  Object.keys(main).forEach((r) => {
-    const element = main[r];
-    if (compareWith[r]) {
-      if (element !== compareWith[r]) {
-        result[r] = compareWith[r];
-      }
-    }
-  });
-  return result;
+
+function TableRow({
+  tbodyRef,
+  row,
+  selectedRow,
+  children,
+  onClick: OnRowClick,
+}) {
+  return (
+    <tr
+      className={row.id == selectedRow?.id ? "active" : ""}
+      {...row.getRowProps()}
+      onClick={() => {
+        OnRowClick(row);
+      }}
+      onKeyDown={(e) => handleTableRowKeyDown(e, tbodyRef, row)}
+    >
+      {children}
+    </tr>
+  );
+}
+
+function TableData({ cell, row, selectedRow, onChange: OnTdChange }) {
+  return (
+    <td {...cell.getCellProps()}>
+      {cell.render("Cell", {
+        isInEditMode: selectedRow?.id == row.id,
+        options: cell.column.options,
+        onChange: async (newValue, oldValue) => {
+          OnTdChange?.({
+            row: row,
+            propertyName: cell.column.id,
+            newValue,
+            oldValue,
+          });
+        },
+        formatting:
+          cell.column.formatting &&
+          new Proxy(
+            {
+              ...cell.column.formatting,
+              data: cell.row.values,
+            },
+            formattingHandler
+          ),
+      })}
+    </td>
+  );
+}
+
+const handleTableRowKeyDown = (event, tbodyRef, row) => {
+  event.stopPropagation();
+  const currentRow = tbodyRef.current?.children[row.id];
+  const rowInputs =
+    Array.from(event.currentTarget.querySelectorAll("input")) || [];
+  const currentPosition = rowInputs.indexOf(event.target);
+
+  switch (event.key) {
+    case "ArrowRight":
+      rowInputs[currentPosition + 1] && rowInputs[currentPosition + 1].focus();
+      break;
+    case "ArrowLeft":
+      rowInputs[currentPosition - 1] && rowInputs[currentPosition - 1].focus();
+      break;
+    case "ArrowUp":
+      const prevRow = currentRow?.previousElementSibling;
+      const prevRowInputs = prevRow?.querySelectorAll("input") || [];
+      prevRowInputs[currentPosition] && prevRowInputs[currentPosition].focus();
+      break;
+    case "ArrowDown":
+      const nextRow = currentRow?.nextElementSibling;
+      const nextRowInputs = nextRow?.querySelectorAll("input") || [];
+      nextRowInputs[currentPosition] && nextRowInputs[currentPosition].focus();
+      break;
+    default:
+      break;
+  }
 };
