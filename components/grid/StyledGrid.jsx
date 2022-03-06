@@ -307,7 +307,13 @@ function TableCell({ cell, row, onChange: onCellChange }) {
 }
 
 function TableRow({ row, onCellChange, onActiveRowIndexChange }) {
-  const { selectedRow, setSelectedRow, tbodyRef } = useGrid();
+  const {
+    selectedRow,
+    setSelectedRow,
+    tbodyRef,
+    expandedRowIndex,
+    setExpandedRowIndex,
+  } = useGrid();
 
   return (
     <>
@@ -324,15 +330,15 @@ function TableRow({ row, onCellChange, onActiveRowIndexChange }) {
         <td className="w-1 py-3 pl-3">
           <div className="flex items-center">
             <a
-              // onClick={() => {
-              //   selectedColumnIndex == 0
-              //     ? setSelectedColumnIndex(row.index + 1)
-              //     : setSelectedColumnIndex(0);
-              // }}
+              onClick={() => {
+                expandedRowIndex == 0
+                  ? setExpandedRowIndex(row.index + 1)
+                  : setExpandedRowIndex(0);
+              }}
               className=""
               href="#"
             >
-              {selectedRow?.index == row.index ? (
+              {expandedRowIndex == row.index + 1 ? (
                 <ChevronDown />
               ) : (
                 <ChevronRight />
@@ -353,7 +359,7 @@ function TableRow({ row, onCellChange, onActiveRowIndexChange }) {
           );
         })}
       </tr>
-      {selectedRow?.index == row.index && <TableSubRow />}
+      {expandedRowIndex == row.index + 1 && <TableSubRow />}
     </>
   );
 }
