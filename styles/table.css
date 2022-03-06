@@ -1,5 +1,8 @@
 table.data-grid {
-  @apply min-w-full bg-white border border-gray-300 rounded dark:bg-gray-800 dark:border-gray-200;
+  @apply w-full bg-white border border-gray-300 rounded dark:bg-gray-800 dark:border-gray-200 h-full;
+  input {
+    @apply text-xs  w-full h-3/4 top-0;
+  }
   thead {
     tr {
       @apply w-full bg-gray-100 border-b border-gray-300 dark:border-gray-200;
@@ -11,6 +14,8 @@ table.data-grid {
   tbody {
     tr {
       @apply border-b border-gray-300 dark:border-gray-200;
+      td {
+      }
     }
     tr:hover:not(.active) {
       @apply bg-green-100;

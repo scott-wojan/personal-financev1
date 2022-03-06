@@ -23,7 +23,7 @@ export default function AppHome() {
         Header: "Date",
         accessor: "date", // accessor is the "key" in the data
         // dataType: "date",
-        // width: 80,
+        width: 280,
       },
       {
         Header: "Account",
@@ -94,6 +94,7 @@ export default function AppHome() {
       columns={columns}
       data={transactions}
       onRowChange={onRowChange}
+      onCellChange={onCellChange}
     />
   );
 }

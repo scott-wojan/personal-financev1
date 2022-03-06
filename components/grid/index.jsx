@@ -64,7 +64,8 @@ export default function Grid({
   const tableRef = useRef(null);
   const tbodyRef = useRef(null);
 
-  useOnClickOutside(tableRef, () => updateSelectedRow(null)); //TODO: include in updateSelectedRowIndex
+  useOnClickOutside(tableRef, () => updateSelectedRow(null));
+
   const tableInstance = useTable(
     getTableOptions(columns, tableData, initialTableState),
     useFlexLayout,

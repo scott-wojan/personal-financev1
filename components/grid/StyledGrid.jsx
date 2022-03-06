@@ -1,3 +1,4 @@
+import useOnClickOutside from "components/hooks/useOnClickOutside";
 import { formattingHandler } from "components/utils/formatting";
 import { getDiff } from "components/utils/getDiff";
 import React, {
@@ -94,10 +95,13 @@ const StyledGrid = ({
       defaultColumn,
       data: data.data,
       autoResetRowState: false,
-      initialState,
-      hiddenColumns: columns
-        .filter((col) => col.show === false)
-        .map((col) => col.accessor),
+      initialState: {
+        // pageIndex: queryPageIndex,
+        // pageSize: queryPageSize,
+        hiddenColumns: columns
+          .filter((col) => col.show === false)
+          .map((col) => col.accessor),
+      },
       initialRowStateAccessor: (row) => initialRowState,
       // initialCellStateAccessor: (cell) => ({ count: 0 }),
     };
@@ -110,7 +114,7 @@ const StyledGrid = ({
       data: tableData,
       initialState: initialTableState,
     }),
-    // useFlexLayout,
+    useFlexLayout,
     useRowState,
     useRowSelect
   );
@@ -152,6 +156,7 @@ export default StyledGrid;
 
 const Table = ({ children, ...rest }) => {
   const { tableRef } = useGrid();
+
   return (
     <table {...rest} ref={tableRef} className="data-grid">
       {children}
@@ -233,6 +238,8 @@ const TableBody = ({
     setSelectedRow(row);
   };
 
+  useOnClickOutside(tbodyRef, () => updateSelectedRow(null));
+
   return (
     <tbody ref={tbodyRef} {...rest}>
       {rows.map((row, rowIndex) => {
@@ -244,8 +251,8 @@ const TableBody = ({
             dropdownStatus={dropdownStatus}
             setDropdownStatus={setDropdownStatus}
             onCellChange={onCellChange}
-            onRowIndexChange={(newIndex) => {
-              console.log("onRowIndexChange");
+            onActiveRowIndexChange={(newIndex) => {
+              console.log("onActiveRowIndexChange");
               const newRow = rows.find((r) => {
                 return r.index == newIndex;
               });
@@ -296,7 +303,7 @@ function TableRow({
   dropdownStatus,
   setDropdownStatus,
   onCellChange,
-  onRowIndexChange,
+  onActiveRowIndexChange,
 }) {
   const { selectedRow, setSelectedRow, tbodyRef } = useGrid();
 
@@ -308,7 +315,7 @@ function TableRow({
           setSelectedRow(row);
         }}
         onKeyDown={(e) => {
-          handleTableRowKeyDown(e, tbodyRef, row, onRowIndexChange);
+          handleTableRowKeyDown(e, tbodyRef, row, onActiveRowIndexChange);
         }}
       >
         <td className="w-24 py-3 pl-3">
@@ -454,13 +461,13 @@ function TableSubRow({}) {
           </ul>
           <div className="w-full bg-white border-l border-gray-300 dark:bg-gray-800 dark:border-gray-200">
             <h4 className="w-full py-3 pl-10 text-sm text-gray-800 bg-gray-100 dark:text-gray-100">
-              Software Development Project
+              {"accountName"}
             </h4>
             <div className="px-8 py-6 bg-white dark:bg-gray-800">
               <div className="flex items-start">
                 <div className="w-1/3">
                   <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Owner
+                    Original Name
                   </p>
                   <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
                     Jason Smith
@@ -468,7 +475,7 @@ function TableSubRow({}) {
                 </div>
                 <div className="w-1/3">
                   <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Type
+                    Original Category
                   </p>
                   <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
                     Development
@@ -476,7 +483,7 @@ function TableSubRow({}) {
                 </div>
                 <div className="w-1/3">
                   <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Time Spent
+                    Original Subcategory
                   </p>
                   <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
                     1440 Hours, 45 Mins
@@ -538,7 +545,7 @@ function HeaderDropDown() {
 
 function ChevronDown() {
   return (
-    <div className="mr-3 text-gray-800 cursor-pointer dark:text-gray-100">
+    <div className="mr-3 cursor-pointer dark:text-gray-100">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="icon icon-tabler icon-tabler-chevron-down"
@@ -560,7 +567,7 @@ function ChevronDown() {
 
 function ChevronRight() {
   return (
-    <div className="mr-3 text-gray-800 cursor-pointer dark:text-gray-100">
+    <div className="mr-3 cursor-pointer dark:text-gray-100">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -654,7 +661,12 @@ function Pagination({}) {
   );
 }
 
-const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
+const handleTableRowKeyDown = (
+  event,
+  tbodyRef,
+  row,
+  onActiveRowIndexChange
+) => {
   event.stopPropagation();
   const currentRow = tbodyRef.current?.children[row.index];
   const rowInputs =
@@ -671,7 +683,7 @@ const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
     case "ArrowUp":
       const prevRow = currentRow?.previousElementSibling;
       if (prevRow) {
-        onRowIndexChange(prevRow.rowIndex - 1);
+        onActiveRowIndexChange(prevRow.rowIndex - 1);
       }
       const prevRowInputs = prevRow?.querySelectorAll("input") || [];
       prevRowInputs[currentPosition] && prevRowInputs[currentPosition].focus();
@@ -679,7 +691,7 @@ const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
     case "ArrowDown":
       const nextRow = currentRow?.nextElementSibling;
       if (nextRow) {
-        onRowIndexChange(nextRow.rowIndex - 1);
+        onActiveRowIndexChange(nextRow.rowIndex - 1);
       }
       const nextRowInputs = nextRow?.querySelectorAll("input") || [];
       nextRowInputs[currentPosition] && nextRowInputs[currentPosition].focus();
