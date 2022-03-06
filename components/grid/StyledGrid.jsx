@@ -171,7 +171,7 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
       {headerGroups.map((headerGroup, headerIndex) => {
         return (
           <tr key={headerIndex}>
-            <th className="py-3 pl-3 ">
+            <th className="w-1 py-3 pl-3 ">
               <div className="flex items-center">
                 <p>Details</p>
               </div>
@@ -272,7 +272,7 @@ function TableCell({ cell, row, onChange: onCellChange }) {
   const { selectedRow } = useGrid();
 
   return (
-    <td {...cell.getCellProps()}>
+    <td {...cell.getCellProps()} className="pl-3">
       {cell.render("Cell", {
         isInEditMode: selectedRow?.index == row.index,
         options: cell.column.options,
@@ -318,7 +318,7 @@ function TableRow({
           handleTableRowKeyDown(e, tbodyRef, row, onActiveRowIndexChange);
         }}
       >
-        <td className="w-24 py-3 pl-3">
+        <td className="w-1 py-3 pl-3">
           <div className="flex items-center">
             <a
               onClick={() => {

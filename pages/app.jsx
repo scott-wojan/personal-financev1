@@ -23,7 +23,7 @@ export default function AppHome() {
         Header: "Date",
         accessor: "date", // accessor is the "key" in the data
         // dataType: "date",
-        width: 280,
+        width: 80,
       },
       {
         Header: "Account",
