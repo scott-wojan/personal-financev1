@@ -219,14 +219,12 @@ const TableBody = ({
   const { tbodyRef, selectedRow, setSelectedRow } = useGrid();
 
   const updateSelectedRow = (row) => {
-    console.log("updateSelectedRow");
     if (selectedRow?.id == row?.id) {
       return; //row didn't change
     }
 
     if (selectedRow) {
       const changes = getDiff(selectedRow.original, selectedRow.values);
-      console.log("changes", changes);
       if (Object.keys(changes).length !== 0) {
         onRowChange?.({ row: selectedRow, changes });
         selectedRow.original = { ...selectedRow.original, ...changes };
@@ -263,11 +261,13 @@ const TableBody = ({
 };
 TableBody.displayName = "TableBody";
 
-function TableCell({ cell, row, selectedRow, onChange: onCellChange }) {
+function TableCell({ cell, row, onChange: onCellChange }) {
+  const { selectedRow } = useGrid();
+
   return (
     <td {...cell.getCellProps()}>
       {cell.render("Cell", {
-        isInEditMode: selectedRow?.id == row.id,
+        isInEditMode: selectedRow?.index == row.index,
         options: cell.column.options,
         onChange: async (newValue, oldValue) => {
           onCellChange?.({
@@ -303,7 +303,7 @@ function TableRow({
   return (
     <>
       <tr
-        className={row.id == selectedRow?.id ? "active" : ""}
+        className={row.index == selectedRow?.index ? "active" : ""}
         onClick={() => {
           setSelectedRow(row);
         }}
@@ -656,7 +656,7 @@ function Pagination({}) {
 
 const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
   event.stopPropagation();
-  const currentRow = tbodyRef.current?.children[row.id];
+  const currentRow = tbodyRef.current?.children[row.index];
   const rowInputs =
     Array.from(event.currentTarget.querySelectorAll("input")) || [];
   const currentPosition = rowInputs.indexOf(event.target);
