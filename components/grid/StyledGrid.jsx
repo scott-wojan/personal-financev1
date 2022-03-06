@@ -1,5 +1,12 @@
 import { formattingHandler } from "components/utils/formatting";
-import React, { forwardRef, useMemo, useRef, useState } from "react";
+import React, {
+  createContext,
+  forwardRef,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   useFlexLayout,
   useRowSelect,
@@ -23,89 +30,70 @@ const DisplayCell = ({ value: initialValue }) => {
   );
 };
 
+const GridContext = createContext({
+  selectedRow: null,
+  setSelectedRow: null,
+  // user: null,
+  // loading: null,
+  // error: null,
+  // signIn: null,
+  // signUp: null,
+  // signOut: null,
+  // confirmSignUp: null,
+  // resetPassword: null,
+  // confirmPasswordReset: null,
+});
+function GridProvider({ children }) {
+  const [selectedRow, setSelectedRow] = useState(null);
+  const memoedValue = useMemo(
+    () => ({
+      selectedRow,
+      setSelectedRow,
+      // error,
+      // signIn,
+      // signUp,
+      // signOut,
+      // confirmSignUp,
+      // resetPassword,
+      // confirmPasswordReset,
+    }),
+    [selectedRow]
+  );
+  return (
+    <GridContext.Provider value={memoedValue}>{children}</GridContext.Provider>
+  );
+}
+function useGrid() {
+  return useContext(GridContext);
+}
+
 const defaultColumn = {
   Cell: DisplayCell,
 };
 
-const StyledGrid = () => {
-  const columns = useMemo(
-    () => [
-      {
-        Header: "Project",
-        accessor: "project",
-      },
-      {
-        Header: "Type",
-        accessor: "type",
-      },
-      {
-        Header: "Status",
-        accessor: "status",
-        Cell: ({ value }) => {
-          const color = value === "Assigned" ? "green" : "blue";
-          return (
-            <div
-              className={`flex items-center justify-center w-20 h-6 bg-${color}-200 rounded-md`}
-            >
-              <span className={`text-xs font-normal text-${color}-500`}>
-                {value}
-              </span>
-            </div>
-          );
-        },
-      },
-      {
-        Header: "Priority",
-        accessor: "priority",
-      },
-      {
-        Header: "Owner",
-        accessor: "owner",
-      },
-      {
-        Header: "Created On",
-        accessor: "createdOn",
-      },
-      {
-        Header: "Due On",
-        accessor: "dueOn",
-      },
-      {
-        Header: "Actions",
-        accessor: "actions",
-      },
-    ],
-    []
-  );
-
-  const data = {
-    total: "137",
-    data: [
-      {
-        project: "Software Developer",
-        type: "Development",
-        status: "Assigned",
-        priority: "High",
-        owner: "Jason Smith",
-        createdOn: "6/28/2020",
-        dueOn: "9/28/2020",
-      },
-      {
-        project: "Jade's website",
-        type: "Design",
-        status: "Pending",
-        priority: "Medium",
-        owner: "Jason Smith",
-        createdOn: "6/28/2020",
-        dueOn: "9/28/2020",
-      },
-    ],
-  };
-
+const StyledGrid = ({ columns, data }) => {
   const [dropdownStatus, setDropdownStatus] = useState(0);
   const [tableData, setTableData] = useState(data);
   const tableRef = useRef(null);
   const tbodyRef = useRef(null);
+
+  const initialTableState = {};
+  const initialRowState = {};
+
+  function getTableOptions({ defaultColumn, columns, data, initialState }) {
+    return {
+      columns,
+      defaultColumn,
+      data: data.data,
+      autoResetRowState: false,
+      initialState,
+      hiddenColumns: columns
+        .filter((col) => col.show === false)
+        .map((col) => col.accessor),
+      initialRowStateAccessor: (row) => initialRowState,
+      // initialCellStateAccessor: (cell) => ({ count: 0 }),
+    };
+  }
 
   const tableInstance = useTable(
     getTableOptions({
@@ -114,7 +102,7 @@ const StyledGrid = () => {
       data: tableData,
       initialState: initialTableState,
     }),
-    useFlexLayout,
+    // useFlexLayout,
     useRowState,
     useRowSelect
   );
@@ -130,10 +118,7 @@ const StyledGrid = () => {
 
   return (
     <div>
-      <table
-        ref={tableRef}
-        className="min-w-full bg-white border border-gray-300 rounded dark:bg-gray-800 dark:border-gray-200"
-      >
+      <Table {...getTableProps()} ref={tableRef}>
         <TableHeader
           dropdownStatus={dropdownStatus}
           setDropdownStatus={setDropdownStatus}
@@ -144,50 +129,38 @@ const StyledGrid = () => {
           ref={tbodyRef}
           rows={rows}
           prepareRow={prepareRow}
-          // @ts-ignore
           dropdownStatus={dropdownStatus}
           setDropdownStatus={setDropdownStatus}
         />
-      </table>
-
+      </Table>
       <Pagination />
     </div>
   );
 };
 export default StyledGrid;
 
-const initialTableState = {};
-const initialRowState = {};
+const Table = forwardRef((props, ref) => {
+  const { children, ...rest } = props;
 
-function getTableOptions({ defaultColumn, columns, data, initialState }) {
-  return {
-    columns,
-    defaultColumn,
-    data: data.data,
-    autoResetRowState: false,
-    initialState,
-    hiddenColumns: columns
-      .filter((col) => col.show === false)
-      .map((col) => col.accessor),
-    initialRowStateAccessor: (row) => initialRowState,
-    // initialCellStateAccessor: (cell) => ({ count: 0 }),
-  };
-}
+  return (
+    <GridProvider>
+      <table {...rest} ref={ref} className="data-grid">
+        {children}
+      </table>
+    </GridProvider>
+  );
+});
+Table.displayName = "Table";
 
 function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
   return (
     <thead>
       {headerGroups.map((headerGroup, headerIndex) => {
         return (
-          <tr
-            key={headerIndex}
-            className="w-full bg-gray-100 border-b border-gray-300 dark:border-gray-200"
-          >
-            <th className="w-24 py-3 pl-3">
+          <tr key={headerIndex}>
+            <th className="py-3 pl-3 ">
               <div className="flex items-center">
-                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                  Details
-                </p>
+                <p>Details</p>
               </div>
             </th>
 
@@ -196,7 +169,7 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
                 <th
                   {...column.getHeaderProps()}
                   key={columnIndex}
-                  className="w-24 py-3 pl-3 whitespace-no-wrap cursor-pointer first-dropdown"
+                  className="w-24 py-3 pl-3 whitespace-no-wrap cursor-pointer "
                   onClick={() => {
                     dropdownStatus == 0
                       ? setDropdownStatus(
@@ -209,6 +182,7 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
                     <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
                       {column.render("Header")}
                     </p>
+
                     <ChevronDown />
                     {dropdownStatus ==
                       headerGroup.headers.length + columnIndex && (
@@ -218,130 +192,6 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
                 </th>
               );
             })}
-            {/* <th
-              className="w-32 whitespace-no-wrap cursor-pointer first-dropdown"
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(8)
-                  : setDropdownStatus(0);
-              }}
-            >
-              <div className="relative flex items-center justify-between">
-                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                  Project
-                </p>
-                <ChevronDown />
-                {dropdownStatus == 8 && <HeaderDropDown />}
-              </div>
-            </th>
-
-            <th
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(9)
-                  : setDropdownStatus(0);
-              }}
-              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
-            >
-              <div className="relative flex items-center justify-between">
-                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                  Type
-                </p>
-                <ChevronDown />
-                {dropdownStatus == 9 && <HeaderDropDown />}
-              </div>
-            </th>
-
-            <th
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(10)
-                  : setDropdownStatus(0);
-              }}
-              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
-            >
-              <div className="relative flex items-center justify-between">
-                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                  Status
-                </p>
-                <ChevronDown />
-                {dropdownStatus == 10 && <HeaderDropDown />}
-              </div>
-            </th>
-
-            <th
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(11)
-                  : setDropdownStatus(0);
-              }}
-              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
-            >
-              <div className="relative flex items-center justify-between">
-                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                  Priority
-                </p>
-                <ChevronDown />
-                {dropdownStatus == 11 && <HeaderDropDown />}
-              </div>
-            </th>
-
-            <th
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(12)
-                  : setDropdownStatus(0);
-              }}
-              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
-            >
-              <div className="relative flex items-center justify-between">
-                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                  Owner
-                </p>
-                <ChevronDown />
-                {dropdownStatus == 12 && <HeaderDropDown />}
-              </div>
-            </th>
-
-            <th
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(13)
-                  : setDropdownStatus(0);
-              }}
-              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
-            >
-              <div className="relative flex items-center justify-between ">
-                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                  Created on
-                </p>
-                <ChevronDown />
-                {dropdownStatus == 13 && <HeaderDropDown />}
-              </div>
-            </th>
-
-            <th
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(14)
-                  : setDropdownStatus(0);
-              }}
-              className="w-32 pl-4 whitespace-no-wrap border-l border-gray-300 cursor-pointer dark:border-gray-200 first-dropdown"
-            >
-              <div className="relative flex items-center justify-between ">
-                <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                  Due on
-                </p>
-                <ChevronDown />
-                {dropdownStatus == 14 && <HeaderDropDown />}
-              </div>
-            </th>
-
-            <th className="w-32 pl-4 pr-12 whitespace-no-wrap border-l border-gray-300 dark:border-gray-200">
-              <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-                Actions
-              </p>
-            </th> */}
           </tr>
         );
       })}
@@ -401,9 +251,16 @@ function TableCell({ cell, row, selectedRow, onChange: onCellChange }) {
 }
 
 function TableRow({ row, dropdownStatus, setDropdownStatus }) {
+  const { selectedRow, setSelectedRow } = useGrid();
+
   return (
     <>
-      <tr className="border-b border-gray-300 dark:border-gray-200">
+      <tr
+        className={row.id == selectedRow?.id ? "active" : ""}
+        onClick={() => {
+          setSelectedRow(row);
+        }}
+      >
         <td className="w-24 py-3 pl-3">
           <div className="flex items-center">
             <a
@@ -411,17 +268,15 @@ function TableRow({ row, dropdownStatus, setDropdownStatus }) {
                 dropdownStatus == 0
                   ? setDropdownStatus(row.index + 1)
                   : setDropdownStatus(0);
-
-                // dropdownStatus == row.index
-                // ? setDropdownStatus(
-                //     headerGroup.headers.length + row.index
-                //   )
-                // : setDropdownStatus(0);
               }}
-              className="ml-2 mr-2 text-gray-800 border border-transparent rounded cursor-pointer focus:outline-none dark:text-gray-100 lg:ml-4 sm:mr-0"
+              className=""
               href="#"
             >
-              <ChevronDown />
+              {dropdownStatus == row.index + 1 ? (
+                <ChevronDown />
+              ) : (
+                <ChevronRight />
+              )}
             </a>
           </div>
         </td>
@@ -648,6 +503,32 @@ function ChevronDown() {
       >
         <path stroke="none" d="M0 0h24v24H0z" />
         <polyline points="6 9 12 15 18 9" />
+      </svg>
+    </div>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <div className="mr-3 text-gray-800 cursor-pointer dark:text-gray-100">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        role="img"
+        width="1em"
+        height="1em"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 24 24"
+        className="iconify iconify--tabler"
+      >
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="m9 6l6 6l-6 6"
+        ></path>
       </svg>
     </div>
   );

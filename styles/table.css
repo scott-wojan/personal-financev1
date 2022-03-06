@@ -1,47 +1,25 @@
-table {
-  @apply border-collapse border m-2 whitespace-nowrap  w-full;
+table.data-grid {
+  @apply min-w-full bg-white border border-gray-300 rounded dark:bg-gray-800 dark:border-gray-200;
   thead {
     tr {
-      @apply w-full text-sm;
+      @apply w-full bg-gray-100 border-b border-gray-300 dark:border-gray-200;
+    }
+    tr th {
+      @apply text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100;
     }
   }
   tbody {
     tr {
-      @apply text-gray-800  border-b border-t border-gray-100;
+      @apply border-b border-gray-300 dark:border-gray-200;
     }
     tr:hover:not(.active) {
-      @apply bg-gray-200;
-      /* td input[type="text"] {
-        @apply bg-gray-200;
-      } */
+      @apply bg-green-100;
     }
-  }
-
-  th {
-    @apply font-normal text-left;
-  }
-  ,
-  th,
-  td {
-    @apply text-left border border-gray-300 cursor-pointer flex justify-between;
-  }
-  input[type="text"] {
-    @apply bg-white text-black;
-  }
-  input[type="text"]:focus {
-    @apply bg-gray-50;
-  }
-  /* [contenteditable="true"] {
-    @apply border border-solid border-transparent outline-none w-full;
-  }
-  [contenteditable="true"]:active,
-  [contenteditable="true"]:focus {
-    @apply border border-solid border-primary outline-none;
-  } */
-}
-tr.active {
-  @apply bg-gray-600;
-  td {
-    @apply text-white;
+    tr.active {
+      @apply bg-gray-600;
+      td p {
+        @apply text-white;
+      }
+    }
   }
 }
