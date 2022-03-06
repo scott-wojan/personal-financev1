@@ -3,7 +3,6 @@ import { format, formattingHandler } from "components/utils/formatting";
 import { getDiff } from "components/utils/getDiff";
 import React, {
   createContext,
-  forwardRef,
   useContext,
   useEffect,
   useMemo,
@@ -45,12 +44,19 @@ const DisplayCell = ({ value: initialValue, formatting }) => {
 const GridContext = createContext({
   selectedRow: null,
   setSelectedRow: null,
+  selectedColumnIndex: null,
+  setSelectedColumnIndex: null,
   tableRef: null,
   tbodyRef: null,
+  expandedRowIndex: null,
+  setExpandedRowIndex: null,
 });
 
 function GridProvider({ children }) {
   const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState(0);
+  const [expandedRowIndex, setExpandedRowIndex] = useState(0);
+
   const tableRef = useRef();
   const tbodyRef = useRef(null);
 
@@ -58,10 +64,14 @@ function GridProvider({ children }) {
     () => ({
       selectedRow,
       setSelectedRow,
+      selectedColumnIndex,
+      setSelectedColumnIndex,
       tableRef,
       tbodyRef,
+      expandedRowIndex,
+      setExpandedRowIndex,
     }),
-    [selectedRow, tableRef, tbodyRef]
+    [selectedRow, selectedColumnIndex, expandedRowIndex]
   );
 
   return (
@@ -82,7 +92,6 @@ const StyledGrid = ({
   onCellChange = undefined,
   onRowChange = undefined,
 }) => {
-  const [dropdownStatus, setDropdownStatus] = useState(0);
   const [tableData, setTableData] = useState(data);
 
   const initialTableState = {};
@@ -141,17 +150,11 @@ const StyledGrid = ({
     <div>
       <GridProvider>
         <Table {...getTableProps()}>
-          <TableHeader
-            dropdownStatus={dropdownStatus}
-            setDropdownStatus={setDropdownStatus}
-            headerGroups={headerGroups}
-          />
+          <TableHeader headerGroups={headerGroups} />
           <TableBody
             {...getTableBodyProps()}
             rows={rows}
             prepareRow={prepareRow}
-            dropdownStatus={dropdownStatus}
-            setDropdownStatus={setDropdownStatus}
             onCellChange={updateTableData}
             onRowChange={onRowChange}
           />
@@ -174,7 +177,8 @@ const Table = ({ children, ...rest }) => {
 };
 Table.displayName = "Table";
 
-function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
+function TableHeader({ headerGroups }) {
+  const { selectedColumnIndex, setSelectedColumnIndex } = useGrid();
   return (
     <thead>
       {headerGroups.map((headerGroup, headerIndex) => {
@@ -193,11 +197,11 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
                   key={columnIndex}
                   className="w-24 py-3 pl-3 whitespace-no-wrap cursor-pointer "
                   onClick={() => {
-                    dropdownStatus == 0
-                      ? setDropdownStatus(
+                    selectedColumnIndex == 0
+                      ? setSelectedColumnIndex(
                           headerGroup.headers.length + columnIndex
                         )
-                      : setDropdownStatus(0);
+                      : setSelectedColumnIndex(0);
                   }}
                 >
                   <div className="relative flex items-center justify-between">
@@ -206,7 +210,7 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
                     </p>
 
                     <ChevronDown />
-                    {dropdownStatus ==
+                    {selectedColumnIndex ==
                       headerGroup.headers.length + columnIndex && (
                       <HeaderDropDown />
                     )}
@@ -222,8 +226,6 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
 }
 
 const TableBody = ({
-  dropdownStatus,
-  setDropdownStatus,
   rows,
   prepareRow,
   onCellChange,
@@ -257,8 +259,6 @@ const TableBody = ({
           <TableRow
             key={rowIndex}
             row={row}
-            dropdownStatus={dropdownStatus}
-            setDropdownStatus={setDropdownStatus}
             onCellChange={onCellChange}
             onActiveRowIndexChange={(newIndex) => {
               console.log("onActiveRowIndexChange");
@@ -306,13 +306,7 @@ function TableCell({ cell, row, onChange: onCellChange }) {
   );
 }
 
-function TableRow({
-  row,
-  dropdownStatus,
-  setDropdownStatus,
-  onCellChange,
-  onActiveRowIndexChange,
-}) {
+function TableRow({ row, onCellChange, onActiveRowIndexChange }) {
   const { selectedRow, setSelectedRow, tbodyRef } = useGrid();
 
   return (
@@ -320,6 +314,7 @@ function TableRow({
       <tr
         className={row.index == selectedRow?.index ? "active" : ""}
         onClick={() => {
+          console.log("onClick row");
           setSelectedRow(row);
         }}
         onKeyDown={(e) => {
@@ -329,15 +324,15 @@ function TableRow({
         <td className="w-1 py-3 pl-3">
           <div className="flex items-center">
             <a
-              onClick={() => {
-                dropdownStatus == 0
-                  ? setDropdownStatus(row.index + 1)
-                  : setDropdownStatus(0);
-              }}
+              // onClick={() => {
+              //   selectedColumnIndex == 0
+              //     ? setSelectedColumnIndex(row.index + 1)
+              //     : setSelectedColumnIndex(0);
+              // }}
               className=""
               href="#"
             >
-              {dropdownStatus == row.index + 1 ? (
+              {selectedRow?.index == row.index ? (
                 <ChevronDown />
               ) : (
                 <ChevronRight />
@@ -358,7 +353,7 @@ function TableRow({
           );
         })}
       </tr>
-      {dropdownStatus == row.index + 1 && <TableSubRow />}
+      {selectedRow?.index == row.index && <TableSubRow />}
     </>
   );
 }

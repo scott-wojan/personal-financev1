@@ -93,7 +93,7 @@ export default function AppHome() {
       columns={columns}
       data={transactions}
       onRowChange={onRowChange}
-      onCellChange={onCellChange}
+      // onCellChange={onCellChange}
     />
   );
 }
