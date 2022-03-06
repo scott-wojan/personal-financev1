@@ -1,5 +1,5 @@
 export const transactions = {
-  total: "137",
+  totalCount: "137",
   data: [
     {
       id: "OJ686T",

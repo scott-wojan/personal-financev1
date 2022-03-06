@@ -94,7 +94,7 @@ export default function AppHome() {
   }
 
   const queryPageIndex = 0;
-  const queryPageSize = 20;
+  const queryPageSize = 10;
 
   const { isLoading, error, data, isSuccess } = useQuery(
     ["/api/transactions", queryPageIndex, queryPageSize],
@@ -114,30 +114,34 @@ export default function AppHome() {
   );
   //    {isLoading  && <div>ssss</div>}
   return (
-    // <TransactionsTable />
-    // <Grid
-    //   columns={columns}
-    //   data={transactions}
-    //   onCellChange={onCellChange}
-    //   onRowChange={onRowChange}
-    // />
-    <StyledGrid
-      columns={columns}
-      data={transactions}
-      onRowChange={onRowChange}
-      pagingSettings={{
-        page: 0,
-        pageSize: 10,
-        onPageChange: undefined,
-        onPageSizeChange: undefined,
-      }}
-      // onCellChange={onCellChange}
-    />
-    // <div>
-    //   {isLoading && <div>Loading... </div>}
-    //   {error && <div>ERROR</div>}
-    //   {isSuccess && <div>{JSON.stringify(data)}</div>}
-    //   <br />
-    // </div>
+    <div>
+      <StyledGrid
+        columns={columns}
+        data={data}
+        onRowChange={onRowChange}
+        paginationSettings={{
+          page: queryPageIndex,
+          pageSize: queryPageSize,
+          onPageChange: undefined,
+          onPageSizeChange: undefined,
+        }}
+        // onCellChange={onCellChange}
+      />
+      {/* <TransactionsTable /> */}
+
+      {/* <Grid
+        columns={columns}
+        data={transactions}
+        onCellChange={onCellChange}
+        onRowChange={onRowChange}
+      /> */}
+
+      <div>
+        {isLoading && <div>Loading... </div>}
+        {error && <div>ERROR</div>}
+        {isSuccess && <div>{JSON.stringify(data)}</div>}
+        <br />
+      </div>
+    </div>
   );
 }

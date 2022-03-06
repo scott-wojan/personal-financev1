@@ -91,7 +91,7 @@ const StyledGrid = ({
   data,
   onCellChange = undefined,
   onRowChange = undefined,
-  pagingSettings = {
+  paginationSettings = {
     page: 0,
     pageSize: 10,
     onPageChange: undefined,
@@ -113,6 +113,7 @@ const StyledGrid = ({
     //setSelectedRow(row);
   };
 
+  console.log("data", data);
   const getTableOptions = ({ defaultColumn, columns, data, initialState }) => {
     return {
       columns,
@@ -128,6 +129,8 @@ const StyledGrid = ({
       },
       initialRowStateAccessor: (row) => initialRowState,
       // initialCellStateAccessor: (cell) => ({ count: 0 }),
+      manualPagination: true,
+      pageCount: Math.ceil(data?.totalCount / paginationSettings.pageSize),
     };
   };
 
@@ -138,6 +141,7 @@ const StyledGrid = ({
       data: tableData,
       initialState: initialTableState,
     }),
+
     useFlexLayout,
     useRowState,
     useRowSelect
@@ -149,8 +153,20 @@ const StyledGrid = ({
     headerGroups,
     rows,
     prepareRow,
+
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+
     state: {},
   } = tableInstance;
+
+  console.log(gotoPage, canPreviousPage);
 
   return (
     <div>
@@ -165,7 +181,21 @@ const StyledGrid = ({
             onRowChange={onRowChange}
           />
         </Table>
-        <Pagination />
+        <Pagination
+          {...paginationSettings}
+          {...{
+            //pageSize,
+            setPageSize,
+            gotoPage,
+            canPreviousPage,
+            previousPage,
+            //pageIndex,
+            pageOptions,
+            nextPage,
+            canNextPage,
+            pageCount,
+          }}
+        />
       </GridProvider>
     </div>
   );
@@ -611,73 +641,70 @@ function ChevronRight() {
   );
 }
 
-function Pagination({}) {
+function Pagination({
+  page = 0,
+  pageSize = 10,
+  setPageSize,
+  gotoPage,
+  canPreviousPage,
+  previousPage,
+  pageOptions,
+  nextPage,
+  canNextPage,
+  pageCount,
+  onPageChange = undefined,
+  onPageSizeChange = undefined,
+}) {
+  console.log(gotoPage, canPreviousPage);
   return (
-    <div className="container flex items-center justify-center pt-8 mx-auto sm:justify-end">
-      <a
-        className="mr-5 text-gray-600 border border-gray-200 rounded dark:text-gray-400 focus:outline-none focus:border-gray-800 focus:shadow-outline-gray"
-        href="#"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="icon icon-tabler icon-tabler-chevron-left"
-          width={24}
-          height={24}
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path stroke="none" d="M0 0h24v24H0z" />
-          <polyline points="15 6 9 12 15 18" />
-        </svg>
-      </a>
-      <p className="text-xs text-gray-800 dark:text-gray-100 fot-normal">
-        Page
-      </p>
-      <label htmlFor="selectedPage" className="hidden" />
-      <input
-        id="selectedPage"
-        type="text"
-        className="flex items-center w-6 px-2 mx-2 text-xs font-normal text-gray-800 bg-white border border-gray-300 rounded dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:border focus:border-indigo-700 dark:border-gray-200"
-        defaultValue={4}
-      />
-      <p className="text-xs text-gray-800 dark:text-gray-100 fot-normal">
-        of 20
-      </p>
-      <a
-        className="mx-5 text-gray-600 border border-gray-200 rounded dark:text-gray-400 focus:outline-none focus:border-gray-800 focus:shadow-outline-gray"
-        href="#"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="icon icon-tabler icon-tabler-chevron-right"
-          width={24}
-          height={24}
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path stroke="none" d="M0 0h24v24H0z" />
-          <polyline points="9 6 15 12 9 18" />
-        </svg>
-      </a>
-      <label htmlFor="selectedPage1" className="hidden" />
-      <input
-        id="selectedPage1"
-        type="text"
-        className="flex items-center w-8 px-2 mx-2 text-xs font-normal text-gray-800 bg-white border border-gray-300 rounded dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:border focus:border-indigo-700 dark:border-gray-200"
-        defaultValue={30}
-      />
-      <p className="-mt-1 text-xs text-gray-800 dark:text-gray-100 fot-normal">
-        per page
-      </p>
-    </div>
+    <nav aria-label="pagination" className="flex justify-between">
+      <div>
+        <div>
+          Show{" "}
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              onPageSizeChange(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                {pageSize}
+              </option>
+            ))}
+          </select>{" "}
+          at a time.
+        </div>
+      </div>
+      <ul className="pagination">
+        <li>
+          <button onClick={() => gotoPage?.(0)} disabled={!canPreviousPage}>
+            <span>&laquo;</span>
+          </button>
+        </li>
+        <li>
+          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+            {"<"}
+          </button>
+        </li>
+        <span className="page">
+          Page {page + 1} of {pageSize}
+        </span>
+        <li>
+          <button onClick={() => nextPage()} disabled={!canNextPage}>
+            {">"}
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={() => gotoPage(pageCount - 1)}
+            disabled={!canNextPage}
+          >
+            <span>&raquo;</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
   );
 }
 
