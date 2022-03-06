@@ -5,6 +5,8 @@ import { transactions } from "data/transactions";
 import EditableText from "components/editable/EditableText";
 import TransactionsTable from "components/table/TransactionsTable";
 import StyledGrid from "components/grid/StyledGrid";
+import { useQuery } from "react-query";
+import axios from "axios";
 
 export default function AppHome() {
   const categoryOptions = categories.map((category) => {
@@ -81,6 +83,36 @@ export default function AppHome() {
     console.log("changes: ", changes);
   };
 
+  async function callApi(endpoint, payload) {
+    try {
+      const response = await axios.post(endpoint, payload);
+      const data = response;
+      return data.data;
+    } catch (e) {
+      throw new Error(`Table API error:${e?.message}`);
+    }
+  }
+
+  const queryPageIndex = 0;
+  const queryPageSize = 20;
+
+  const { isLoading, error, data, isSuccess } = useQuery(
+    ["/api/transactions", queryPageIndex, queryPageSize],
+    () =>
+      callApi("/api/transactions", {
+        page: queryPageIndex,
+        pageSize: queryPageSize,
+        accountId: "usaa_checking",
+        startDate: "2019-01-01",
+        endDate: "2022-01-01",
+      }),
+
+    {
+      keepPreviousData: true,
+      staleTime: Infinity,
+    }
+  );
+  //    {isLoading  && <div>ssss</div>}
   return (
     // <TransactionsTable />
     // <Grid
@@ -93,7 +125,19 @@ export default function AppHome() {
       columns={columns}
       data={transactions}
       onRowChange={onRowChange}
+      pagingSettings={{
+        page: 0,
+        pageSize: 10,
+        onPageChange: undefined,
+        onPageSizeChange: undefined,
+      }}
       // onCellChange={onCellChange}
     />
+    // <div>
+    //   {isLoading && <div>Loading... </div>}
+    //   {error && <div>ERROR</div>}
+    //   {isSuccess && <div>{JSON.stringify(data)}</div>}
+    //   <br />
+    // </div>
   );
 }

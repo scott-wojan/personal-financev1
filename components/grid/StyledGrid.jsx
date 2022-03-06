@@ -91,6 +91,12 @@ const StyledGrid = ({
   data,
   onCellChange = undefined,
   onRowChange = undefined,
+  pagingSettings = {
+    page: 0,
+    pageSize: 10,
+    onPageChange: undefined,
+    onPageSizeChange: undefined,
+  },
 }) => {
   const [tableData, setTableData] = useState(data);
 
@@ -111,7 +117,7 @@ const StyledGrid = ({
     return {
       columns,
       defaultColumn,
-      data: data.data,
+      data: data?.data ?? [],
       autoResetRowState: false,
       initialState: {
         // pageIndex: queryPageIndex,
@@ -253,6 +259,13 @@ const TableBody = ({
 
   return (
     <tbody ref={tbodyRef} {...rest}>
+      {rows.length == 0 && (
+        <tr>
+          <td colSpan={99} className="text-sm text-center p-14">
+            No results
+          </td>
+        </tr>
+      )}
       {rows.map((row, rowIndex) => {
         prepareRow(row);
         return (
@@ -261,7 +274,6 @@ const TableBody = ({
             row={row}
             onCellChange={onCellChange}
             onActiveRowIndexChange={(newIndex) => {
-              console.log("onActiveRowIndexChange");
               const newRow = rows.find((r) => {
                 return r.index == newIndex;
               });
@@ -320,7 +332,6 @@ function TableRow({ row, onCellChange, onActiveRowIndexChange }) {
       <tr
         className={row.index == selectedRow?.index ? "active" : ""}
         onClick={() => {
-          console.log("onClick row");
           setSelectedRow(row);
         }}
         onKeyDown={(e) => {

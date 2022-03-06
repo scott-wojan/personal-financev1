@@ -39,7 +39,7 @@ const reducer = (state, { type, payload }) => {
 async function callApi(endpoint, payload) {
   try {
     const response = await axios.post(endpoint, payload);
-    const data = await response;
+    const data = response;
     return data.data;
   } catch (e) {
     throw new Error(`Table API error:${e?.message}`);
@@ -95,16 +95,6 @@ export default function Table({
   }, [data]);
 
   const handleTableChange = (row, propertyName, newValue, oldValue) => {
-    // console.log("tableData.data", tableData.data.length);
-    // console.log(
-    //   "handleTableChange",
-    //   row,
-    //   propertyName,
-    //   newValue,
-    //   oldValue,
-    //   data
-    // );
-
     setTableData((prev) => {
       return {
         total: prev.total,
