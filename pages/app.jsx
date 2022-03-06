@@ -55,13 +55,12 @@ export default function AppHome() {
         Header: "Amount",
         accessor: "amount",
         dataType: "text",
-
-        // formatting: {
-        //   type: "currency",
-        //   settings: {
-        //     currencyCode: (x) => x.iso_currency_code,
-        //   },
-        // },
+        formatting: {
+          type: "currency",
+          settings: {
+            currencyCode: (x) => x.iso_currency_code,
+          },
+        },
       },
       {
         Header: "Currency Code",

@@ -1,5 +1,5 @@
 import useOnClickOutside from "components/hooks/useOnClickOutside";
-import { formattingHandler } from "components/utils/formatting";
+import { format, formattingHandler } from "components/utils/formatting";
 import { getDiff } from "components/utils/getDiff";
 import React, {
   createContext,
@@ -17,18 +17,27 @@ import {
   useTable,
 } from "react-table";
 
-const DisplayCell = ({ value: initialValue }) => {
+const DisplayCell = ({ value: initialValue, formatting }) => {
   // We need to keep and update the state of the cell normally
   const [value, setValue] = React.useState(initialValue);
+  const [unFormattedValue, setUnFormattedValue] = useState(value);
+  const [formattedValue, setFormattedValue] = useState(value);
 
-  // If the initialValue is changed external, sync it up with our state
-  React.useEffect(() => {
-    setValue(initialValue);
+  useEffect(() => {
+    setUnFormattedValue(initialValue);
   }, [initialValue]);
+
+  useEffect(() => {
+    if (formatting) {
+      setFormattedValue(format(formatting.type, value, formatting.settings));
+    } else {
+      setFormattedValue(unFormattedValue);
+    }
+  }, [formatting, value, unFormattedValue]);
 
   return (
     <p className="text-xs font-normal leading-4 tracking-normal text-left text-gray-800 dark:text-gray-100">
-      {value ?? ""}
+      {formattedValue?.toString() ?? ""}
     </p>
   );
 };
@@ -270,7 +279,6 @@ TableBody.displayName = "TableBody";
 
 function TableCell({ cell, row, onChange: onCellChange }) {
   const { selectedRow } = useGrid();
-
   return (
     <td {...cell.getCellProps()} className="pl-3">
       {cell.render("Cell", {
