@@ -66,7 +66,12 @@ const defaultColumn = {
   Cell: DisplayCell,
 };
 
-const StyledGrid = ({ columns, data, onRowChange = undefined }) => {
+const StyledGrid = ({
+  columns,
+  data,
+  onCellChange = undefined,
+  onRowChange = undefined,
+}) => {
   const [dropdownStatus, setDropdownStatus] = useState(0);
   const [tableData, setTableData] = useState(data);
 
@@ -76,6 +81,12 @@ const StyledGrid = ({ columns, data, onRowChange = undefined }) => {
   useEffect(() => {
     setTableData(data);
   }, [data]);
+
+  const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
+    row.values[propertyName] = newValue;
+    onCellChange?.({ row: row, propertyName, newValue, oldValue });
+    //setSelectedRow(row);
+  };
 
   const getTableOptions = ({ defaultColumn, columns, data, initialState }) => {
     return {
@@ -128,6 +139,7 @@ const StyledGrid = ({ columns, data, onRowChange = undefined }) => {
             prepareRow={prepareRow}
             dropdownStatus={dropdownStatus}
             setDropdownStatus={setDropdownStatus}
+            onCellChange={updateTableData}
             onRowChange={onRowChange}
           />
         </Table>
@@ -200,20 +212,21 @@ const TableBody = ({
   setDropdownStatus,
   rows,
   prepareRow,
+  onCellChange,
   onRowChange,
   ...rest
 }) => {
-  const { tbodyRef } = useGrid();
+  const { tbodyRef, selectedRow, setSelectedRow } = useGrid();
 
-  const { selectedRow, setSelectedRow } = useGrid();
   const updateSelectedRow = (row) => {
+    console.log("updateSelectedRow");
     if (selectedRow?.id == row?.id) {
       return; //row didn't change
     }
 
     if (selectedRow) {
       const changes = getDiff(selectedRow.original, selectedRow.values);
-
+      console.log("changes", changes);
       if (Object.keys(changes).length !== 0) {
         onRowChange?.({ row: selectedRow, changes });
         selectedRow.original = { ...selectedRow.original, ...changes };
@@ -232,7 +245,9 @@ const TableBody = ({
             row={row}
             dropdownStatus={dropdownStatus}
             setDropdownStatus={setDropdownStatus}
+            onCellChange={onCellChange}
             onRowIndexChange={(newIndex) => {
+              console.log("onRowIndexChange");
               const newRow = rows.find((r) => {
                 return r.index == newIndex;
               });
@@ -280,6 +295,7 @@ function TableRow({
   row,
   dropdownStatus,
   setDropdownStatus,
+  onCellChange,
   onRowIndexChange,
 }) {
   const { selectedRow, setSelectedRow, tbodyRef } = useGrid();
@@ -322,7 +338,7 @@ function TableRow({
               cell={cell}
               row={row}
               // selectedRow={selectedRow}
-              // onChange={updateTableData}
+              onChange={onCellChange}
             />
           );
         })}
@@ -331,41 +347,6 @@ function TableRow({
     </>
   );
 }
-
-const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
-  event.stopPropagation();
-  const currentRow = tbodyRef.current?.children[row.id];
-  const rowInputs =
-    Array.from(event.currentTarget.querySelectorAll("input")) || [];
-  const currentPosition = rowInputs.indexOf(event.target);
-
-  switch (event.key) {
-    case "ArrowRight":
-      rowInputs[currentPosition + 1] && rowInputs[currentPosition + 1].focus();
-      break;
-    case "ArrowLeft":
-      rowInputs[currentPosition - 1] && rowInputs[currentPosition - 1].focus();
-      break;
-    case "ArrowUp":
-      const prevRow = currentRow?.previousElementSibling;
-      if (prevRow) {
-        onRowIndexChange(prevRow.rowIndex - 1);
-      }
-      const prevRowInputs = prevRow?.querySelectorAll("input") || [];
-      prevRowInputs[currentPosition] && prevRowInputs[currentPosition].focus();
-      break;
-    case "ArrowDown":
-      const nextRow = currentRow?.nextElementSibling;
-      if (nextRow) {
-        onRowIndexChange(nextRow.rowIndex - 1);
-      }
-      const nextRowInputs = nextRow?.querySelectorAll("input") || [];
-      nextRowInputs[currentPosition] && nextRowInputs[currentPosition].focus();
-      break;
-    default:
-      break;
-  }
-};
 
 function TableSubRow({}) {
   return (
@@ -672,3 +653,38 @@ function Pagination({}) {
     </div>
   );
 }
+
+const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
+  event.stopPropagation();
+  const currentRow = tbodyRef.current?.children[row.id];
+  const rowInputs =
+    Array.from(event.currentTarget.querySelectorAll("input")) || [];
+  const currentPosition = rowInputs.indexOf(event.target);
+
+  switch (event.key) {
+    case "ArrowRight":
+      rowInputs[currentPosition + 1] && rowInputs[currentPosition + 1].focus();
+      break;
+    case "ArrowLeft":
+      rowInputs[currentPosition - 1] && rowInputs[currentPosition - 1].focus();
+      break;
+    case "ArrowUp":
+      const prevRow = currentRow?.previousElementSibling;
+      if (prevRow) {
+        onRowIndexChange(prevRow.rowIndex - 1);
+      }
+      const prevRowInputs = prevRow?.querySelectorAll("input") || [];
+      prevRowInputs[currentPosition] && prevRowInputs[currentPosition].focus();
+      break;
+    case "ArrowDown":
+      const nextRow = currentRow?.nextElementSibling;
+      if (nextRow) {
+        onRowIndexChange(nextRow.rowIndex - 1);
+      }
+      const nextRowInputs = nextRow?.querySelectorAll("input") || [];
+      nextRowInputs[currentPosition] && nextRowInputs[currentPosition].focus();
+      break;
+    default:
+      break;
+  }
+};

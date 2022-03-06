@@ -90,6 +90,10 @@ export default function AppHome() {
     //   onCellChange={onCellChange}
     //   onRowChange={onRowChange}
     // />
-    <StyledGrid columns={columns} data={transactions} />
+    <StyledGrid
+      columns={columns}
+      data={transactions}
+      onRowChange={onRowChange}
+    />
   );
 }

@@ -56,32 +56,9 @@ export default function Grid({
   };
 
   const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
-    //console.log("updateTableData", row, propertyName, newValue, oldValue);
     row.values[propertyName] = newValue;
     onCellChange?.({ row: row, propertyName, newValue, oldValue });
     setSelectedRow(row);
-
-    // setTableData((prev) => {
-    //   const newTableData = {
-    //     total: prev.total,
-    //     data: prev?.data?.map((item, index) => {
-    //       if (item.id === row.original.id) {
-    //         const newRow = {
-    //           ...item,
-    //           [propertyName]: newValue,
-    //         };
-
-    //         setSelectedRow(row);
-
-    //         onCellChange?.({ row: newRow, propertyName, newValue, oldValue });
-    //         return newRow;
-    //       }
-    //       return item;
-    //     }),
-    //   };
-    //   // console.log("updateTableData", newTableData);
-    //   return newTableData;
-    // });
   };
 
   const tableRef = useRef(null);
