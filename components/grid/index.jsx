@@ -41,34 +41,18 @@ export default function Grid({
 
   const updateSelectedRow = (row) => {
     if (selectedRow?.id == row?.id) {
-      //row didn't change
-      return;
+      return; //row didn't change
     }
 
     if (selectedRow) {
       const changes = getDiff(selectedRow.original, selectedRow.values);
 
       if (Object.keys(changes).length !== 0) {
-        console.log();
         onRowChange?.({ row: selectedRow, changes });
         selectedRow.original = { ...selectedRow.original, ...changes };
       }
     }
     setSelectedRow(row);
-    // setSelectedRow((prevRow) => {
-    //   if (prevRow) {
-    //     if (prevRow.state?.editedProperties.size > 0) {
-    //       const changes = {};
-    //       for (let item of prevRow.state?.editedProperties) {
-    //         changes[item] = "X";
-    //         console.log("item", item);
-    //       }
-    //       onRowChange?.({ row: prevRow, changes });
-    //     }
-    //     // if (prevRow?.setState) await prevRow?.setState(initialRowState);
-    //   }
-    //   return row;
-    // });
   };
 
   const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
@@ -101,7 +85,7 @@ export default function Grid({
   };
 
   const tableRef = useRef(null);
-  const tbodyRef = React.useRef(null);
+  const tbodyRef = useRef(null);
 
   useOnClickOutside(tableRef, () => updateSelectedRow(null)); //TODO: include in updateSelectedRowIndex
   const tableInstance = useTable(
@@ -151,8 +135,6 @@ export default function Grid({
                   if (newRow) {
                     updateSelectedRow(newRow);
                   }
-                  // console.log("newRow", newRow);
-                  // console.log("newIndex", newIndex);
                 }}
               >
                 {row.cells.map((cell, cellIndex) => {

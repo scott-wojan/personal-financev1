@@ -1,8 +1,10 @@
 import { formattingHandler } from "components/utils/formatting";
+import { getDiff } from "components/utils/getDiff";
 import React, {
   createContext,
   forwardRef,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -33,32 +35,25 @@ const DisplayCell = ({ value: initialValue }) => {
 const GridContext = createContext({
   selectedRow: null,
   setSelectedRow: null,
-  // user: null,
-  // loading: null,
-  // error: null,
-  // signIn: null,
-  // signUp: null,
-  // signOut: null,
-  // confirmSignUp: null,
-  // resetPassword: null,
-  // confirmPasswordReset: null,
+  tableRef: null,
+  tbodyRef: null,
 });
+
 function GridProvider({ children }) {
   const [selectedRow, setSelectedRow] = useState(null);
+  const tableRef = useRef();
+  const tbodyRef = useRef(null);
+
   const memoedValue = useMemo(
     () => ({
       selectedRow,
       setSelectedRow,
-      // error,
-      // signIn,
-      // signUp,
-      // signOut,
-      // confirmSignUp,
-      // resetPassword,
-      // confirmPasswordReset,
+      tableRef,
+      tbodyRef,
     }),
-    [selectedRow]
+    [selectedRow, tableRef, tbodyRef]
   );
+
   return (
     <GridContext.Provider value={memoedValue}>{children}</GridContext.Provider>
   );
@@ -71,16 +66,18 @@ const defaultColumn = {
   Cell: DisplayCell,
 };
 
-const StyledGrid = ({ columns, data }) => {
+const StyledGrid = ({ columns, data, onRowChange = undefined }) => {
   const [dropdownStatus, setDropdownStatus] = useState(0);
   const [tableData, setTableData] = useState(data);
-  const tableRef = useRef(null);
-  const tbodyRef = useRef(null);
 
   const initialTableState = {};
   const initialRowState = {};
 
-  function getTableOptions({ defaultColumn, columns, data, initialState }) {
+  useEffect(() => {
+    setTableData(data);
+  }, [data]);
+
+  const getTableOptions = ({ defaultColumn, columns, data, initialState }) => {
     return {
       columns,
       defaultColumn,
@@ -93,7 +90,7 @@ const StyledGrid = ({ columns, data }) => {
       initialRowStateAccessor: (row) => initialRowState,
       // initialCellStateAccessor: (cell) => ({ count: 0 }),
     };
-  }
+  };
 
   const tableInstance = useTable(
     getTableOptions({
@@ -118,38 +115,37 @@ const StyledGrid = ({ columns, data }) => {
 
   return (
     <div>
-      <Table {...getTableProps()} ref={tableRef}>
-        <TableHeader
-          dropdownStatus={dropdownStatus}
-          setDropdownStatus={setDropdownStatus}
-          headerGroups={headerGroups}
-        />
-        <TableBody
-          {...getTableBodyProps()}
-          ref={tbodyRef}
-          rows={rows}
-          prepareRow={prepareRow}
-          dropdownStatus={dropdownStatus}
-          setDropdownStatus={setDropdownStatus}
-        />
-      </Table>
-      <Pagination />
+      <GridProvider>
+        <Table {...getTableProps()}>
+          <TableHeader
+            dropdownStatus={dropdownStatus}
+            setDropdownStatus={setDropdownStatus}
+            headerGroups={headerGroups}
+          />
+          <TableBody
+            {...getTableBodyProps()}
+            rows={rows}
+            prepareRow={prepareRow}
+            dropdownStatus={dropdownStatus}
+            setDropdownStatus={setDropdownStatus}
+            onRowChange={onRowChange}
+          />
+        </Table>
+        <Pagination />
+      </GridProvider>
     </div>
   );
 };
 export default StyledGrid;
 
-const Table = forwardRef((props, ref) => {
-  const { children, ...rest } = props;
-
+const Table = ({ children, ...rest }) => {
+  const { tableRef } = useGrid();
   return (
-    <GridProvider>
-      <table {...rest} ref={ref} className="data-grid">
-        {children}
-      </table>
-    </GridProvider>
+    <table {...rest} ref={tableRef} className="data-grid">
+      {children}
+    </table>
   );
-});
+};
 Table.displayName = "Table";
 
 function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
@@ -199,13 +195,35 @@ function TableHeader({ headerGroups, dropdownStatus, setDropdownStatus }) {
   );
 }
 
-const TableBody = forwardRef((props, ref) => {
-  // @ts-ignore
-  const { dropdownStatus, setDropdownStatus, rows, prepareRow, ...rest } =
-    props;
+const TableBody = ({
+  dropdownStatus,
+  setDropdownStatus,
+  rows,
+  prepareRow,
+  onRowChange,
+  ...rest
+}) => {
+  const { tbodyRef } = useGrid();
+
+  const { selectedRow, setSelectedRow } = useGrid();
+  const updateSelectedRow = (row) => {
+    if (selectedRow?.id == row?.id) {
+      return; //row didn't change
+    }
+
+    if (selectedRow) {
+      const changes = getDiff(selectedRow.original, selectedRow.values);
+
+      if (Object.keys(changes).length !== 0) {
+        onRowChange?.({ row: selectedRow, changes });
+        selectedRow.original = { ...selectedRow.original, ...changes };
+      }
+    }
+    setSelectedRow(row);
+  };
 
   return (
-    <tbody ref={ref} {...rest}>
+    <tbody ref={tbodyRef} {...rest}>
       {rows.map((row, rowIndex) => {
         prepareRow(row);
         return (
@@ -214,12 +232,20 @@ const TableBody = forwardRef((props, ref) => {
             row={row}
             dropdownStatus={dropdownStatus}
             setDropdownStatus={setDropdownStatus}
+            onRowIndexChange={(newIndex) => {
+              const newRow = rows.find((r) => {
+                return r.index == newIndex;
+              });
+              if (newRow) {
+                updateSelectedRow(newRow);
+              }
+            }}
           />
         );
       })}
     </tbody>
   );
-});
+};
 TableBody.displayName = "TableBody";
 
 function TableCell({ cell, row, selectedRow, onChange: onCellChange }) {
@@ -250,8 +276,13 @@ function TableCell({ cell, row, selectedRow, onChange: onCellChange }) {
   );
 }
 
-function TableRow({ row, dropdownStatus, setDropdownStatus }) {
-  const { selectedRow, setSelectedRow } = useGrid();
+function TableRow({
+  row,
+  dropdownStatus,
+  setDropdownStatus,
+  onRowIndexChange,
+}) {
+  const { selectedRow, setSelectedRow, tbodyRef } = useGrid();
 
   return (
     <>
@@ -259,6 +290,9 @@ function TableRow({ row, dropdownStatus, setDropdownStatus }) {
         className={row.id == selectedRow?.id ? "active" : ""}
         onClick={() => {
           setSelectedRow(row);
+        }}
+        onKeyDown={(e) => {
+          handleTableRowKeyDown(e, tbodyRef, row, onRowIndexChange);
         }}
       >
         <td className="w-24 py-3 pl-3">
@@ -297,6 +331,41 @@ function TableRow({ row, dropdownStatus, setDropdownStatus }) {
     </>
   );
 }
+
+const handleTableRowKeyDown = (event, tbodyRef, row, onRowIndexChange) => {
+  event.stopPropagation();
+  const currentRow = tbodyRef.current?.children[row.id];
+  const rowInputs =
+    Array.from(event.currentTarget.querySelectorAll("input")) || [];
+  const currentPosition = rowInputs.indexOf(event.target);
+
+  switch (event.key) {
+    case "ArrowRight":
+      rowInputs[currentPosition + 1] && rowInputs[currentPosition + 1].focus();
+      break;
+    case "ArrowLeft":
+      rowInputs[currentPosition - 1] && rowInputs[currentPosition - 1].focus();
+      break;
+    case "ArrowUp":
+      const prevRow = currentRow?.previousElementSibling;
+      if (prevRow) {
+        onRowIndexChange(prevRow.rowIndex - 1);
+      }
+      const prevRowInputs = prevRow?.querySelectorAll("input") || [];
+      prevRowInputs[currentPosition] && prevRowInputs[currentPosition].focus();
+      break;
+    case "ArrowDown":
+      const nextRow = currentRow?.nextElementSibling;
+      if (nextRow) {
+        onRowIndexChange(nextRow.rowIndex - 1);
+      }
+      const nextRowInputs = nextRow?.querySelectorAll("input") || [];
+      nextRowInputs[currentPosition] && nextRowInputs[currentPosition].focus();
+      break;
+    default:
+      break;
+  }
+};
 
 function TableSubRow({}) {
   return (
