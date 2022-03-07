@@ -335,7 +335,7 @@ function TableRow({ row, onRowChange, onCellChange, onActiveRowIndexChange }) {
         }}
       >
         <td className="w-1 py-3 pl-3">
-          <div className="flex items-center">
+          <div className="flex items-center ">
             <a
               onClick={() => {
                 expandedRowIndex == 0
@@ -346,7 +346,9 @@ function TableRow({ row, onRowChange, onCellChange, onActiveRowIndexChange }) {
               href="#"
             >
               {expandedRowIndex == row.index + 1 ? (
-                <ChevronDown />
+                <div className="text-white">
+                  <ChevronDown />
+                </div>
               ) : (
                 <ChevronRight />
               )}
@@ -477,33 +479,81 @@ function TableSubRow({}) {
           </ul>
           <div className="w-full bg-white border-l border-gray-300 dark:bg-gray-800 dark:border-gray-200">
             <h4 className="w-full py-3 pl-10 text-sm text-gray-800 bg-gray-100 dark:text-gray-100">
-              {"accountName"}
+              USAA Checking (USAA Super Checking)
             </h4>
             <div className="px-8 py-6 bg-white dark:bg-gray-800">
               <div className="flex items-start">
-                <div className="w-1/3">
-                  <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Original Name
+                <div className="w-1/2">
+                  <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
+                    Received As
                   </p>
-                  <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                    Jason Smith
-                  </h5>
+
+                  <table className="transaction-details-table">
+                    <tbody>
+                      <tr>
+                        <td>Name:</td>
+                        <td>
+                          <a
+                            href="https://www.google.com/search?q=COINBASE.COM 8889087930 ***********1D5D"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            COINBASE.COM 8889087930 ***********1D5D
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Category:</td>
+                        <td>Online Services</td>
+                      </tr>
+                      <tr>
+                        <td>Sub Category:</td>
+                        <td>Expense</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-                <div className="w-1/3">
-                  <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Original Category
+                <div className="w-1/2">
+                  <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
+                    Merchant Info
                   </p>
-                  <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                    Development
-                  </h5>
-                </div>
-                <div className="w-1/3">
-                  <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Original Subcategory
-                  </p>
-                  <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                    1440 Hours, 45 Mins
-                  </h5>
+
+                  <table className="transaction-details-table">
+                    <tbody>
+                      <tr>
+                        <td>Name:</td>
+                        <td>
+                          <a
+                            href="https://www.google.com/search?q=Best Buy"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Best Buy
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Store #:</td>
+                        <td>1234</td>
+                      </tr>
+                      <tr>
+                        <td>Address:</td>
+                        <td>
+                          <a
+                            href="https://www.google.com/maps/search/?api=1&query=6405 wexley ln the colony tx 75056"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            1234 Main Street, Dallas, TX 75056
+                          </a>
+                        </td>
+                      </tr>
+                      {/*
+                      https://www.google.com/maps/search/?api=1&query=<lat>,<lng>
+                      https://www.google.com/maps/search/?api=1&query=6405 wexley ln the colony tx 75056
+                      */}
+                    </tbody>
+                  </table>
                 </div>
               </div>
               <div className="flex items-start mt-6">
@@ -559,23 +609,21 @@ function HeaderDropDown() {
 
 function ChevronDown() {
   return (
-    <div className="mr-3 cursor-pointer dark:text-gray-100">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="icon icon-tabler icon-tabler-chevron-down"
-        width={16}
-        height={16}
-        viewBox="0 0 24 24"
-        strokeWidth="1.5"
-        stroke="currentColor"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path stroke="none" d="M0 0h24v24H0z" />
-        <polyline points="6 9 12 15 18 9" />
-      </svg>
-    </div>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="icon icon-tabler icon-tabler-chevron-down"
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
   );
 }
 

@@ -14,8 +14,6 @@ table.data-grid {
   tbody {
     tr {
       @apply border-b border-gray-300 dark:border-gray-200;
-      td {
-      }
     }
     tr:hover:not(.active) {
       @apply bg-green-100;
@@ -27,4 +25,23 @@ table.data-grid {
       }
     }
   }
+}
+
+.transaction-details-table {
+  @apply text-xs;
+  tr {
+    @apply border-transparent !important;
+    td {
+      @apply select-all whitespace-nowrap;
+    }
+  }
+  tr:hover {
+    @apply bg-transparent !important;
+  }
+  a {
+    @apply text-indigo-700;
+  }
+  /* a::after {
+    content: url(/offpage-link.svg);
+  } */
 }
