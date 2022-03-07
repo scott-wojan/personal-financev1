@@ -184,9 +184,9 @@ function TableHeader({ headerGroups }) {
       {headerGroups.map((headerGroup, headerIndex) => {
         return (
           <tr key={headerIndex}>
-            <th className="w-1 py-3 pl-3 ">
+            <th className="">
               <div className="flex items-center">
-                <p>Details</p>
+                <p></p>
               </div>
             </th>
 
@@ -195,7 +195,7 @@ function TableHeader({ headerGroups }) {
                 <th
                   {...column.getHeaderProps()}
                   key={columnIndex}
-                  className="w-24 py-3 pl-3 whitespace-no-wrap cursor-pointer "
+                  className="px-3 py-3 whitespace-no-wrap cursor-pointer "
                   onClick={() => {
                     selectedColumnIndex == 0
                       ? setSelectedColumnIndex(
@@ -374,6 +374,7 @@ function TableRow({ row, onRowChange, onCellChange, onActiveRowIndexChange }) {
 }
 
 function TableSubRow({}) {
+  const [activeTab, setActiveTab] = useState(0);
   return (
     <tr className="detail-row">
       <td colSpan={9}>
@@ -381,12 +382,15 @@ function TableSubRow({}) {
           <ul>
             <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
               <a
-                className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
                 href="#"
+                className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
+                onClick={() => {
+                  setActiveTab(0);
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="icon icon-tabler icon-tabler-grid"
+                  className="icon icon-tabler icon-tabler-notes"
                   width={20}
                   height={20}
                   viewBox="0 0 24 24"
@@ -396,11 +400,11 @@ function TableSubRow({}) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <rect x={4} y={4} width={6} height={6} rx={1} />
-                  <rect x={14} y={4} width={6} height={6} rx={1} />
-                  <rect x={4} y={14} width={6} height={6} rx={1} />
-                  <rect x={14} y={14} width={6} height={6} rx={1} />
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <rect x="5" y="3" width="14" height="18" rx="2" />
+                  <line x1="9" y1="7" x2="15" y2="7" />
+                  <line x1="9" y1="11" x2="15" y2="11" />
+                  <line x1="9" y1="15" x2="13" y2="15" />
                 </svg>
               </a>
             </li>
@@ -409,8 +413,11 @@ function TableSubRow({}) {
               className="flex items-center justify-center cursor-pointer"
             >
               <a
-                className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none focus:bg-indigo-700 focus:text-white"
                 href="#"
+                className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none focus:bg-indigo-700 focus:text-white"
+                onClick={() => {
+                  setActiveTab(1);
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -431,8 +438,11 @@ function TableSubRow({}) {
             </li>
             <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
               <a
-                className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
                 href="#"
+                className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none focus:bg-indigo-700 focus:text-white"
+                onClick={() => {
+                  setActiveTab(2);
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -454,8 +464,11 @@ function TableSubRow({}) {
             </li>
             <li className="flex items-center justify-center text-sm leading-3 tracking-normal cursor-pointer">
               <a
-                className="p-3 text-gray-800 border border-transparent dark:text-gray-100 hover:text-indigo-700 focus:bg-indigo-700 focus:text-white"
                 href="#"
+                className="p-3 text-gray-800 border border-transparent dark:text-gray-100 focus:outline-none focus:bg-indigo-700 focus:text-white"
+                onClick={() => {
+                  setActiveTab(3);
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -477,111 +490,125 @@ function TableSubRow({}) {
               </a>
             </li>
           </ul>
-          <div className="w-full bg-white border-l border-gray-300 dark:bg-gray-800 dark:border-gray-200">
-            <h4 className="w-full py-3 pl-10 text-sm text-gray-800 bg-gray-100 dark:text-gray-100">
-              USAA Checking (USAA Super Checking)
-            </h4>
-            <div className="px-8 py-6 bg-white dark:bg-gray-800">
-              <div className="flex items-start">
-                <div className="w-1/2">
-                  <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
-                    Received As
-                  </p>
+          {activeTab === 0 && (
+            <div className="w-full bg-white border-l border-gray-300 dark:bg-gray-800 dark:border-gray-200">
+              <h4 className="w-full py-3 pl-10 text-sm text-gray-800 bg-gray-100 dark:text-gray-100">
+                USAA Checking (USAA Super Checking)
+              </h4>
+              <div className="px-8 py-6 bg-white dark:bg-gray-800">
+                <div className="flex items-start">
+                  <div className="w-1/2">
+                    <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
+                      Received As:
+                    </p>
 
-                  <table className="transaction-details-table">
-                    <tbody>
-                      <tr>
-                        <td>Name:</td>
-                        <td>
-                          <a
-                            href="https://www.google.com/search?q=COINBASE.COM 8889087930 ***********1D5D"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            COINBASE.COM 8889087930 ***********1D5D
-                          </a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Category:</td>
-                        <td>Online Services</td>
-                      </tr>
-                      <tr>
-                        <td>Sub Category:</td>
-                        <td>Expense</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div className="w-1/2">
-                  <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
-                    Merchant Info
-                  </p>
+                    <table className="transaction-details-table">
+                      <tbody>
+                        <tr>
+                          <td>Name:</td>
+                          <td>
+                            <a
+                              href="https://www.google.com/search?q=COINBASE.COM 8889087930 ***********1D5D"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              COINBASE.COM 8889087930 ***********1D5D
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Category:</td>
+                          <td>Online Services</td>
+                        </tr>
+                        <tr>
+                          <td>Sub Category:</td>
+                          <td>Expense</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="w-1/2">
+                    <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
+                      Merchant Info:
+                    </p>
 
-                  <table className="transaction-details-table">
-                    <tbody>
-                      <tr>
-                        <td>Name:</td>
-                        <td>
-                          <a
-                            href="https://www.google.com/search?q=Best Buy"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Best Buy
-                          </a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Store #:</td>
-                        <td>1234</td>
-                      </tr>
-                      <tr>
-                        <td>Address:</td>
-                        <td>
-                          <a
-                            href="https://www.google.com/maps/search/?api=1&query=6405 wexley ln the colony tx 75056"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            1234 Main Street, Dallas, TX 75056
-                          </a>
-                        </td>
-                      </tr>
-                      {/*
+                    <table className="transaction-details-table">
+                      <tbody>
+                        <tr>
+                          <td>Name:</td>
+                          <td>
+                            <a
+                              href="https://www.google.com/search?q=Best Buy"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Best Buy
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Store #:</td>
+                          <td>1234</td>
+                        </tr>
+                        <tr>
+                          <td>Address:</td>
+                          <td>
+                            <a
+                              href="https://www.google.com/maps/search/?api=1&query=6405 wexley ln the colony tx 75056"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              1234 Main Street, Dallas, TX 75056
+                            </a>
+                          </td>
+                        </tr>
+                        {/*
                       https://www.google.com/maps/search/?api=1&query=<lat>,<lng>
-                      https://www.google.com/maps/search/?api=1&query=6405 wexley ln the colony tx 75056
                       */}
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start mt-6">
-                <div className="w-1/3">
-                  <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Notes
-                  </p>
-                  <textarea className="w-full text-xs font-normal text-gray-800 dark:text-gray-100"></textarea>
-                </div>
-                <div className="w-1/3">
-                  <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Priority
-                  </p>
-                  <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                    High
-                  </h5>
-                </div>
-                <div className="w-1/3">
-                  <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Incharge officer(s)
-                  </p>
-                  <h5 className="text-xs font-normal text-indigo-700">
-                    Saul Berenson &amp; Nicholas Brody
-                  </h5>
+                <div className="flex items-start mt-6">
+                  <div className="w-1/2">
+                    <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
+                      Additional Information:
+                    </p>
+                    <table className="transaction-details-table">
+                      <tbody>
+                        <tr>
+                          <td>Status:</td>
+                          <td>Posted</td>
+                        </tr>
+                        <tr>
+                          <td>Authorized On:</td>
+                          <td>1234</td>
+                        </tr>
+                        <tr>
+                          <td>Check number:</td>
+                          <td>#456</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="w-1/2">
+                    <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
+                      Notes
+                    </p>
+                    <textarea className="w-full text-xs font-normal text-gray-800 dark:text-gray-100"></textarea>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+          {activeTab === 1 && <div>Active tab 1</div>}
+          {activeTab === 2 && <div>Active tab 2</div>}
+          {activeTab === 3 && (
+            <div>
+              <textarea></textarea>
+            </div>
+          )}
         </div>
       </td>
     </tr>
