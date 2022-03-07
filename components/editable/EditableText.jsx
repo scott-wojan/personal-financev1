@@ -2,28 +2,20 @@ import { format } from "components/utils/formatting";
 import React, { useEffect, useState } from "react";
 
 export default function EditableText({
-  value,
+  value: initialValue,
   onChange = undefined,
   formatting,
 }) {
-  const [unFormattedValue, setUnFormattedValue] = useState(value);
-  // const debouncedUnFormattedValue = useDebounce(unFormattedValue, 500);
+  const [unFormattedValue, setUnFormattedValue] = useState(initialValue);
 
   useEffect(() => {
-    setUnFormattedValue(value);
-  }, [value]);
-
-  // useEffect(() => {
-  //   if (debouncedUnFormattedValue && value !== debouncedUnFormattedValue) {
-  //     console.log(debouncedUnFormattedValue);
-  //     onChange?.(debouncedUnFormattedValue, value);
-  //   }
-  // }, [debouncedUnFormattedValue, onChange, value]);
+    setUnFormattedValue(initialValue);
+  }, [initialValue]);
 
   const onInputChange = (e) => {
     const newValue = e.target.value;
     setUnFormattedValue(newValue);
-    console.log(newValue);
+    onChange?.(newValue, initialValue);
   };
 
   return (
@@ -48,7 +40,7 @@ export function EditableText2({
   const [unFormattedValue, setUnFormattedValue] = useState(value);
   const [formattedValue, setFormattedValue] = useState(value);
   const [isEditing, setIsEditing] = useState(isInEditMode);
-  const debouncedUnFormattedValue = useDebounce(unFormattedValue, 500);
+  const debouncedUnFormattedValue = useDebounce(value, 500);
 
   useEffect(() => {
     if (debouncedUnFormattedValue && value !== debouncedUnFormattedValue) {
@@ -101,7 +93,22 @@ export function EditableText2({
 
   return <div>{formattedValue?.toString()}</div>;
 }
+
 function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+function useDebounce3(value, delay) {
   // State and setters for debounced value
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(

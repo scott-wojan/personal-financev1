@@ -55,7 +55,6 @@ function GridProvider({ children }) {
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedColumnIndex, setSelectedColumnIndex] = useState(0);
   const [expandedRowIndex, setExpandedRowIndex] = useState(0);
-
   const tableRef = useRef();
   const tbodyRef = useRef(null);
 
@@ -99,13 +98,13 @@ const StyledGrid = ({
     onPageSizeChange: undefined,
   },
 }) => {
-  const [tableData, setTableData] = useState(data);
+  // const [tableData, setTableData] = useState(data);
   const initialTableState = {};
-  const initialRowState = {};
+  // const initialRowState = {};
 
-  useEffect(() => {
-    setTableData(data);
-  }, [data]);
+  // useEffect(() => {
+  //   setTableData(data);
+  // }, [data]);
 
   const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
     row.values[propertyName] = newValue;
@@ -116,16 +115,14 @@ const StyledGrid = ({
     return {
       columns,
       defaultColumn,
-      data: tableData?.data ?? [],
+      data: data?.data ?? [],
       autoResetRowState: false,
       initialState: {
-        // pageIndex: queryPageIndex,
-        // pageSize: queryPageSize,
         hiddenColumns: columns
           .filter((col) => col.show === false)
           .map((col) => col.accessor),
       },
-      initialRowStateAccessor: (row) => initialRowState,
+      // initialRowStateAccessor: (row) => initialRowState,
       // initialCellStateAccessor: (cell) => ({ count: 0 }),
     };
   };
@@ -270,6 +267,7 @@ const TableBody = ({
             key={rowIndex}
             row={row}
             onCellChange={onCellChange}
+            onRowChange={updateSelectedRow}
             onActiveRowIndexChange={(newIndex) => {
               const newRow = rows.find((r) => {
                 return r.index == newIndex;
@@ -315,7 +313,7 @@ function TableCell({ cell, row, onChange: onCellChange }) {
   );
 }
 
-function TableRow({ row, onCellChange, onActiveRowIndexChange }) {
+function TableRow({ row, onRowChange, onCellChange, onActiveRowIndexChange }) {
   const {
     selectedRow,
     setSelectedRow,
@@ -330,6 +328,7 @@ function TableRow({ row, onCellChange, onActiveRowIndexChange }) {
         className={row.index == selectedRow?.index ? "active" : ""}
         onClick={() => {
           setSelectedRow(row);
+          onRowChange(row);
         }}
         onKeyDown={(e) => {
           handleTableRowKeyDown(e, tbodyRef, row, onActiveRowIndexChange);

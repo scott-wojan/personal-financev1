@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Grid from "components/Grid";
 import { categories } from "data/categories";
 import { transactions } from "data/transactions";
@@ -75,15 +75,46 @@ export default function AppHome() {
   );
 
   const onCellChange = ({ row, propertyName, newValue, oldValue }) => {
-    console.log("onCellChange: ", propertyName, newValue);
+    //console.log("onCellChange: ", propertyName, newValue);
+    // setGridData((prev) => {
+    //   return {
+    //     total: prev.total,
+    //     data: prev.data?.map((item, index) => {
+    //       if (index === row.index) {
+    //         const newRow = {
+    //           ...item,
+    //           [propertyName]: newValue,
+    //         };
+    //         return newRow;
+    //       }
+    //       return item;
+    //     }),
+    //   };
+    // });
   };
 
   const onRowChange = ({ row, changes }) => {
-    console.log("onRowChange: ", row);
-    console.log("changes: ", changes);
+    // console.log("onRowChange: ", row);
+    // console.log("changes: ", changes);
+    // setGridData((prev) => {
+    //   return {
+    //     total: prev.total,
+    //     data: prev.data?.map((item, index) => {
+    //       if (index === row.index) {
+    //         const newRow = {
+    //           ...item,
+    //           ...changes,
+    //         };
+    //         return newRow;
+    //       }
+    //       return item;
+    //     }),
+    //   };
+    // });
   };
 
   async function callApi(endpoint, payload) {
+    console.log("Calling API ", endpoint);
     try {
       const response = await axios.post(endpoint, payload);
       const data = response;
@@ -95,6 +126,7 @@ export default function AppHome() {
 
   const [queryPageIndex, setQueryPageIndex] = useState(0);
   const [queryPageSize, setQueryPageSize] = useState(10);
+  const [gridData, setGridData] = useState(null);
 
   const { isLoading, error, data, isSuccess } = useQuery(
     ["/api/transactions", queryPageIndex, queryPageSize],
@@ -109,25 +141,33 @@ export default function AppHome() {
 
     {
       keepPreviousData: true,
-      staleTime: Infinity,
+      staleTime: 100,
     }
   );
+
+  useEffect(() => {
+    console.log("Data");
+    setGridData(data);
+  }, [data]);
+
   //    {isLoading  && <div>ssss</div>}
   return (
     <div>
-      <StyledGrid
-        columns={columns}
-        data={data}
-        onRowChange={onRowChange}
-        paginationSettings={{
-          page: queryPageIndex,
-          pageSize: queryPageSize,
-          total: Number(data?.total),
-          onPageChange: setQueryPageIndex,
-          onPageSizeChange: setQueryPageSize,
-        }}
-        // onCellChange={onCellChange}
-      />
+      {!isLoading && isSuccess && (
+        <StyledGrid
+          columns={columns}
+          data={gridData}
+          onRowChange={onRowChange}
+          paginationSettings={{
+            page: queryPageIndex,
+            pageSize: queryPageSize,
+            total: Number(gridData?.total),
+            onPageChange: setQueryPageIndex,
+            onPageSizeChange: setQueryPageSize,
+          }}
+          onCellChange={onCellChange}
+        />
+      )}
       {/* <TransactionsTable /> */}
 
       {/* <Grid
@@ -140,7 +180,7 @@ export default function AppHome() {
       <div>
         {isLoading && <div>Loading... </div>}
         {error && <div>ERROR</div>}
-        {isSuccess && <div>{JSON.stringify(data)}</div>}
+        {isSuccess && <div>{JSON.stringify(gridData)}</div>}
         <br />
       </div>
     </div>
