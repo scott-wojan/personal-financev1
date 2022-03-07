@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Grid from "components/Grid";
 import { categories } from "data/categories";
 import { transactions } from "data/transactions";
@@ -43,7 +43,7 @@ export default function AppHome() {
         Header: "Category",
         accessor: "category",
         isEditable: true,
-        Cell: EditableText,
+        // Cell: EditableText,
         // dataType: "select",
         // options: categoryOptions,
       },
@@ -51,7 +51,7 @@ export default function AppHome() {
         Header: "Sub Category",
         accessor: "subcategory",
         isEditable: true,
-        Cell: EditableText,
+        // Cell: EditableText,
       },
       {
         Header: "Amount",
@@ -93,8 +93,8 @@ export default function AppHome() {
     }
   }
 
-  const queryPageIndex = 0;
-  const queryPageSize = 10;
+  const [queryPageIndex, setQueryPageIndex] = useState(0);
+  const [queryPageSize, setQueryPageSize] = useState(10);
 
   const { isLoading, error, data, isSuccess } = useQuery(
     ["/api/transactions", queryPageIndex, queryPageSize],
@@ -122,8 +122,9 @@ export default function AppHome() {
         paginationSettings={{
           page: queryPageIndex,
           pageSize: queryPageSize,
-          onPageChange: undefined,
-          onPageSizeChange: undefined,
+          total: Number(data?.total),
+          onPageChange: setQueryPageIndex,
+          onPageSizeChange: setQueryPageSize,
         }}
         // onCellChange={onCellChange}
       />

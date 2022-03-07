@@ -1,8 +1,44 @@
 import { format } from "components/utils/formatting";
 import React, { useEffect, useState } from "react";
-import ContentEditable from "react-contenteditable";
 
 export default function EditableText({
+  value,
+  onChange = undefined,
+  formatting,
+}) {
+  const [unFormattedValue, setUnFormattedValue] = useState(value);
+  // const debouncedUnFormattedValue = useDebounce(unFormattedValue, 500);
+
+  useEffect(() => {
+    setUnFormattedValue(value);
+  }, [value]);
+
+  // useEffect(() => {
+  //   if (debouncedUnFormattedValue && value !== debouncedUnFormattedValue) {
+  //     console.log(debouncedUnFormattedValue);
+  //     onChange?.(debouncedUnFormattedValue, value);
+  //   }
+  // }, [debouncedUnFormattedValue, onChange, value]);
+
+  const onInputChange = (e) => {
+    const newValue = e.target.value;
+    setUnFormattedValue(newValue);
+    console.log(newValue);
+  };
+
+  return (
+    <>
+      <input
+        type="text"
+        value={unFormattedValue?.toString() ?? ""}
+        className="w-full p-0 border-0 "
+        onChange={onInputChange}
+      />
+    </>
+  );
+}
+
+export function EditableText2({
   value,
   formatting = undefined,
   onChange = undefined,
@@ -14,14 +50,11 @@ export default function EditableText({
   const [isEditing, setIsEditing] = useState(isInEditMode);
   const debouncedUnFormattedValue = useDebounce(unFormattedValue, 500);
 
-  useEffect(
-    () => {
-      if (debouncedUnFormattedValue && value !== debouncedUnFormattedValue) {
-        onChange?.(debouncedUnFormattedValue, value);
-      }
-    },
-    [debouncedUnFormattedValue, onChange, value] // Only call effect if debounced search term changes
-  );
+  useEffect(() => {
+    if (debouncedUnFormattedValue && value !== debouncedUnFormattedValue) {
+      onChange?.(debouncedUnFormattedValue, value);
+    }
+  }, [debouncedUnFormattedValue, onChange, value]);
 
   useEffect(() => {
     setUnFormattedValue(value);
@@ -41,8 +74,6 @@ export default function EditableText({
 
   const onInputChange = (e) => {
     const newValue = e.target.value;
-    // console.log("onBlur", value, newValue, onChange);
-    // setIsEditing(false);
     setUnFormattedValue(newValue);
     // if (value !== newValue) onChange?.(newValue, value);
   };

@@ -16,15 +16,14 @@ import {
   useTable,
 } from "react-table";
 
-const DisplayCell = ({ value: initialValue, formatting }) => {
+const DisplayCell = ({ value, formatting }) => {
   // We need to keep and update the state of the cell normally
-  const [value, setValue] = React.useState(initialValue);
   const [unFormattedValue, setUnFormattedValue] = useState(value);
   const [formattedValue, setFormattedValue] = useState(value);
 
   useEffect(() => {
-    setUnFormattedValue(initialValue);
-  }, [initialValue]);
+    setUnFormattedValue(value);
+  }, [value]);
 
   useEffect(() => {
     if (formatting) {
@@ -78,9 +77,10 @@ function GridProvider({ children }) {
     <GridContext.Provider value={memoedValue}>{children}</GridContext.Provider>
   );
 }
-function useGrid() {
+
+const useGrid = () => {
   return useContext(GridContext);
-}
+};
 
 const defaultColumn = {
   Cell: DisplayCell,
@@ -94,12 +94,12 @@ const StyledGrid = ({
   paginationSettings = {
     page: 0,
     pageSize: 10,
+    total: 0,
     onPageChange: undefined,
     onPageSizeChange: undefined,
   },
 }) => {
   const [tableData, setTableData] = useState(data);
-
   const initialTableState = {};
   const initialRowState = {};
 
@@ -110,15 +110,13 @@ const StyledGrid = ({
   const updateTableData = ({ row, propertyName, newValue, oldValue }) => {
     row.values[propertyName] = newValue;
     onCellChange?.({ row: row, propertyName, newValue, oldValue });
-    //setSelectedRow(row);
   };
 
-  console.log("data", data);
-  const getTableOptions = ({ defaultColumn, columns, data, initialState }) => {
+  const getTableOptions = ({ initialState }) => {
     return {
       columns,
       defaultColumn,
-      data: data?.data ?? [],
+      data: tableData?.data ?? [],
       autoResetRowState: false,
       initialState: {
         // pageIndex: queryPageIndex,
@@ -129,16 +127,11 @@ const StyledGrid = ({
       },
       initialRowStateAccessor: (row) => initialRowState,
       // initialCellStateAccessor: (cell) => ({ count: 0 }),
-      manualPagination: true,
-      pageCount: Math.ceil(data?.totalCount / paginationSettings.pageSize),
     };
   };
 
   const tableInstance = useTable(
     getTableOptions({
-      defaultColumn,
-      columns,
-      data: tableData,
       initialState: initialTableState,
     }),
 
@@ -153,20 +146,8 @@ const StyledGrid = ({
     headerGroups,
     rows,
     prepareRow,
-
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-
     state: {},
   } = tableInstance;
-
-  console.log(gotoPage, canPreviousPage);
 
   return (
     <div>
@@ -181,21 +162,7 @@ const StyledGrid = ({
             onRowChange={onRowChange}
           />
         </Table>
-        <Pagination
-          {...paginationSettings}
-          {...{
-            //pageSize,
-            setPageSize,
-            gotoPage,
-            canPreviousPage,
-            previousPage,
-            //pageIndex,
-            pageOptions,
-            nextPage,
-            canNextPage,
-            pageCount,
-          }}
-        />
+        <Pagination {...paginationSettings} />
       </GridProvider>
     </div>
   );
@@ -644,18 +611,13 @@ function ChevronRight() {
 function Pagination({
   page = 0,
   pageSize = 10,
-  setPageSize,
-  gotoPage,
-  canPreviousPage,
-  previousPage,
-  pageOptions,
-  nextPage,
-  canNextPage,
-  pageCount,
+  total = 0,
   onPageChange = undefined,
   onPageSizeChange = undefined,
 }) {
-  console.log(gotoPage, canPreviousPage);
+  const totalPages = Math.ceil(total / pageSize);
+  const canGoToNextPage = page + 1 >= totalPages;
+
   return (
     <nav aria-label="pagination" className="flex justify-between">
       <div>
@@ -664,7 +626,7 @@ function Pagination({
           <select
             value={pageSize}
             onChange={(e) => {
-              onPageSizeChange(Number(e.target.value));
+              onPageSizeChange?.(Number(e.target.value));
             }}
           >
             {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -678,27 +640,32 @@ function Pagination({
       </div>
       <ul className="pagination">
         <li>
-          <button onClick={() => gotoPage?.(0)} disabled={!canPreviousPage}>
+          <button onClick={() => onPageChange(0)} disabled={page === 0}>
             <span>&laquo;</span>
           </button>
         </li>
         <li>
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+          {/* <button onClick={() => previousPage()} disabled={!canPreviousPage}> */}
+          <button onClick={() => onPageChange(page - 1)} disabled={page === 0}>
             {"<"}
           </button>
         </li>
         <span className="page">
-          Page {page + 1} of {pageSize}
+          Page {page + 1} of {totalPages}
         </span>
         <li>
-          <button onClick={() => nextPage()} disabled={!canNextPage}>
+          {/* <button onClick={() => nextPage()} disabled={!canNextPage}> */}
+          <button
+            onClick={() => onPageChange(page + 1)}
+            disabled={canGoToNextPage}
+          >
             {">"}
           </button>
         </li>
         <li>
           <button
-            onClick={() => gotoPage(pageCount - 1)}
-            disabled={!canNextPage}
+            onClick={() => onPageChange(totalPages - 1)}
+            disabled={canGoToNextPage}
           >
             <span>&raquo;</span>
           </button>
