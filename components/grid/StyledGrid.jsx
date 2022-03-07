@@ -390,7 +390,7 @@ function TableSubRow({}) {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="icon icon-tabler icon-tabler-notes"
+                  className="icon icon-tabler icon-tabler-code"
                   width={20}
                   height={20}
                   viewBox="0 0 24 24"
@@ -400,11 +400,10 @@ function TableSubRow({}) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <rect x="5" y="3" width="14" height="18" rx="2" />
-                  <line x1="9" y1="7" x2="15" y2="7" />
-                  <line x1="9" y1="11" x2="15" y2="11" />
-                  <line x1="9" y1="15" x2="13" y2="15" />
+                  <path stroke="none" d="M0 0h24v24H0z" />
+                  <polyline points="7 8 3 12 7 16" />
+                  <polyline points="17 8 21 12 17 16" />
+                  <line x1={14} y1={4} x2={10} y2={20} />
                 </svg>
               </a>
             </li>
@@ -472,7 +471,7 @@ function TableSubRow({}) {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="icon icon-tabler icon-tabler-code"
+                  className="icon icon-tabler icon-tabler-notes"
                   width={20}
                   height={20}
                   viewBox="0 0 24 24"
@@ -482,18 +481,22 @@ function TableSubRow({}) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <polyline points="7 8 3 12 7 16" />
-                  <polyline points="17 8 21 12 17 16" />
-                  <line x1={14} y1={4} x2={10} y2={20} />
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <rect x="5" y="3" width="14" height="18" rx="2" />
+                  <line x1="9" y1="7" x2="15" y2="7" />
+                  <line x1="9" y1="11" x2="15" y2="11" />
+                  <line x1="9" y1="15" x2="13" y2="15" />
                 </svg>
               </a>
             </li>
           </ul>
           {activeTab === 0 && (
             <div className="w-full bg-white border-l border-gray-300 dark:bg-gray-800 dark:border-gray-200">
-              <h4 className="w-full py-3 pl-10 text-sm text-gray-800 bg-gray-100 dark:text-gray-100">
+              <h4 className="flex justify-between w-full px-10 py-3 text-sm text-gray-800 bg-gray-100 dark:text-gray-100">
                 USAA Checking (USAA Super Checking)
+                <div className="flex items-center justify-center px-1 text-xs bg-orange-200 rounded-md">
+                  Pending
+                </div>
               </h4>
               <div className="px-8 py-6 bg-white dark:bg-gray-800">
                 <div className="flex items-start">
@@ -523,6 +526,10 @@ function TableSubRow({}) {
                         <tr>
                           <td>Sub Category:</td>
                           <td>Expense</td>
+                        </tr>
+                        <tr>
+                          <td>Check #:</td>
+                          <td> 1232</td>
                         </tr>
                       </tbody>
                     </table>
@@ -562,41 +569,15 @@ function TableSubRow({}) {
                             </a>
                           </td>
                         </tr>
+                        <tr>
+                          <td>Authorized On: </td>
+                          <td>01/04/2022</td>
+                        </tr>
                         {/*
                       https://www.google.com/maps/search/?api=1&query=<lat>,<lng>
                       */}
                       </tbody>
                     </table>
-                  </div>
-                </div>
-                <div className="flex items-start mt-6">
-                  <div className="w-1/2">
-                    <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
-                      Additional Information:
-                    </p>
-                    <table className="transaction-details-table">
-                      <tbody>
-                        <tr>
-                          <td>Status:</td>
-                          <td>Posted</td>
-                        </tr>
-                        <tr>
-                          <td>Authorized On:</td>
-                          <td>1234</td>
-                        </tr>
-                        <tr>
-                          <td>Check number:</td>
-                          <td>#456</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="w-1/2">
-                    <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                      Notes
-                    </p>
-                    <textarea className="w-full text-xs font-normal text-gray-800 dark:text-gray-100"></textarea>
                   </div>
                 </div>
               </div>
@@ -605,8 +586,18 @@ function TableSubRow({}) {
           {activeTab === 1 && <div>Active tab 1</div>}
           {activeTab === 2 && <div>Active tab 2</div>}
           {activeTab === 3 && (
-            <div>
-              <textarea></textarea>
+            <div className="flex flex-col w-full bg-white border-l border-gray-300 dark:bg-gray-800 dark:border-gray-200">
+              <h4 className="w-full py-3 pl-10 text-sm text-gray-800 bg-gray-100 dark:text-gray-100">
+                <div>USAA Checking (USAA Super Checking)</div>
+              </h4>
+              <div className="h-full ">
+                <div className="w-full h-full px-8 py-2 text-sm">
+                  <textarea
+                    className="w-full h-full text-sm"
+                    placeholder="transaction notes"
+                  ></textarea>
+                </div>
+              </div>
             </div>
           )}
         </div>
