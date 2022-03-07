@@ -346,7 +346,7 @@ function TableRow({ row, onRowChange, onCellChange, onActiveRowIndexChange }) {
               href="#"
             >
               {expandedRowIndex == row.index + 1 ? (
-                <div className="text-white">
+                <div className="">
                   <ChevronDown />
                 </div>
               ) : (
