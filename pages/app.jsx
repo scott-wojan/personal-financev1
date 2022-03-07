@@ -43,7 +43,7 @@ export default function AppHome() {
         Header: "Category",
         accessor: "category",
         isEditable: true,
-        // Cell: EditableText,
+        Cell: EditableText,
         // dataType: "select",
         // options: categoryOptions,
       },
@@ -51,7 +51,7 @@ export default function AppHome() {
         Header: "Sub Category",
         accessor: "subcategory",
         isEditable: true,
-        // Cell: EditableText,
+        Cell: EditableText,
       },
       {
         Header: "Amount",
@@ -94,8 +94,8 @@ export default function AppHome() {
   };
 
   const onRowChange = ({ row, changes }) => {
-    // console.log("onRowChange: ", row);
-    // console.log("changes: ", changes);
+    console.log("onRowChange: ", row);
+    console.log("changes: ", changes);
     // setGridData((prev) => {
     //   return {
     //     total: prev.total,
@@ -146,7 +146,6 @@ export default function AppHome() {
   );
 
   useEffect(() => {
-    console.log("Data");
     setGridData(data);
   }, [data]);
 
@@ -177,12 +176,12 @@ export default function AppHome() {
         onRowChange={onRowChange}
       /> */}
 
-      <div>
+      {/* <div>
         {isLoading && <div>Loading... </div>}
         {error && <div>ERROR</div>}
         {isSuccess && <div>{JSON.stringify(gridData)}</div>}
         <br />
-      </div>
+      </div> */}
     </div>
   );
 }
