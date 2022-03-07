@@ -151,7 +151,7 @@ export default function AppHome() {
 
   //    {isLoading  && <div>ssss</div>}
   return (
-    <div>
+    <div className="w-3/4">
       {!isLoading && isSuccess && (
         <StyledGrid
           columns={columns}
