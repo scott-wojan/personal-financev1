@@ -509,11 +509,9 @@ function TableSubRow({}) {
               <div className="flex items-start mt-6">
                 <div className="w-1/3">
                   <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                    Project
+                    Notes
                   </p>
-                  <h5 className="text-xs font-normal text-gray-800 dark:text-gray-100">
-                    Create new features for the app
-                  </h5>
+                  <textarea className="w-full text-xs font-normal text-gray-800 dark:text-gray-100"></textarea>
                 </div>
                 <div className="w-1/3">
                   <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
