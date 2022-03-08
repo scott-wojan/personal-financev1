@@ -1,13 +1,13 @@
 export default function filterObject(obj, filterPredicate) {
   const results = [];
-  function _filterObject(o, f) {
+  function _filterObject(o, filterPredicate, parent = null) {
     for (let key in o) {
       const val = o[key];
-      if (f(val)) {
+      if (filterPredicate(val)) {
         results.push(val);
       }
       if (typeof val === "object") {
-        _filterObject(val, f);
+        _filterObject(val, filterPredicate, parent);
       }
     }
   }

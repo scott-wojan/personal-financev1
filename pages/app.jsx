@@ -181,7 +181,7 @@ export default function AppHome() {
         <Select
           options={categories}
           // onChange={handleTypeSelect}
-          value={"Travel"}
+          value={1}
           placeholder="Select"
         />
       </div>

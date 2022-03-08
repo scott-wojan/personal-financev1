@@ -1,7 +1,7 @@
 export const categories = [
   {
     label: "Auto & Transportation",
-    value: "Auto & Transportation",
+    value: 1,
     options: [
       { label: "Gas/Fuel", value: "Gas/Fuel" },
       { label: "Insurance", value: "Insurance" },

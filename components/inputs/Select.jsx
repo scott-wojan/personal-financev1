@@ -12,7 +12,7 @@ const Option = ({
   currentValue = undefined,
 }) => {
   const [show, setShow] = useState(false);
-  const poo = currentValue === value ? " text-indigo-700" : "";
+  const activeOptionStyle = currentValue === value ? " text-indigo-700" : "";
 
   return (
     <div>
@@ -39,7 +39,9 @@ const Option = ({
               onClick?.({ label, value });
             }}
           >
-            <p className={"ml-2 text-sm leading-normal " + poo}>{label}</p>
+            <p className={"ml-2 text-sm leading-normal " + activeOptionStyle}>
+              {label}
+            </p>
           </div>
         </div>
       </div>
@@ -88,12 +90,38 @@ export default function Select({
     );
   };
 
+  // function getOptions(arr, filterPredicate, parent = []){
+  //   const results = []
+  //   for (let i = 0; i < arr.length; i++) {
+  //     const currentItem = arr[i];
+
+  //     if(filterPredicate(currentItem)){
+  //       results.push({
+  //         label: currentItem.label,
+  //         value: currentItem.value,
+  //         path: [...parent, currentItem.label].join( ' > ')
+  //       })
+
+  //     }
+  //     if(currentItem.options){
+  //     results.push(...getOptions(currentItem.options,filterPredicate, [...parent, currentItem.label]))
+
+  //     }
+  //   }
+  //   return results;
+  // }
+
+  // const filterPredicate = (o) => o?.label?.match(new RegExp("Cash"?.toString(), "i"));
+
+  //  console.log(getOptions(categories, filterPredicate))
+
   const searchOptions = (value) => {
     if (value === "") {
       setSelections(options);
       return;
     }
     const filteredValues = filterOptionsByLabel(value);
+    console.log("filteredValues", filteredValues);
     setSelections(filteredValues);
   };
 
