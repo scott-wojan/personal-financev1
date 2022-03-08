@@ -23,6 +23,9 @@ table.data-grid {
       td p {
         @apply text-white;
       }
+      svg {
+        @apply text-white;
+      }
     }
   }
 }

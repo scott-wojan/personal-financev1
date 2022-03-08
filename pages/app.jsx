@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
-import Grid from "components/Grid";
 import { categories } from "data/categories";
 import { transactions } from "data/transactions";
 import EditableText from "components/editable/EditableText";
 import TransactionsTable from "components/table/TransactionsTable";
-import StyledGrid from "components/grid/StyledGrid";
+import Grid from "components/grid";
 import { useQuery } from "react-query";
 import axios from "axios";
+import Select from "components/inputs/Select";
+import { AutoComplete } from "components/inputs/AutoComplete";
+import CategoriesDropdown from "components/inputs/CategoriesDropdown";
 
 export default function AppHome() {
   const categoryOptions = categories.map((category) => {
@@ -128,32 +130,32 @@ export default function AppHome() {
   const [queryPageSize, setQueryPageSize] = useState(10);
   const [gridData, setGridData] = useState(null);
 
-  const { isLoading, error, data, isSuccess } = useQuery(
-    ["/api/transactions", queryPageIndex, queryPageSize],
-    () =>
-      callApi("/api/transactions", {
-        page: queryPageIndex,
-        pageSize: queryPageSize,
-        accountId: "usaa_checking",
-        startDate: "2019-01-01",
-        endDate: "2022-01-01",
-      }),
+  // const { isLoading, error, data, isSuccess } = useQuery(
+  //   ["/api/transactions", queryPageIndex, queryPageSize],
+  //   () =>
+  //     callApi("/api/transactions", {
+  //       page: queryPageIndex,
+  //       pageSize: queryPageSize,
+  //       accountId: "usaa_checking",
+  //       startDate: "2019-01-01",
+  //       endDate: "2022-01-01",
+  //     }),
 
-    {
-      keepPreviousData: true,
-      staleTime: 100,
-    }
-  );
+  //   {
+  //     keepPreviousData: true,
+  //     staleTime: 100,
+  //   }
+  // );
 
-  useEffect(() => {
-    setGridData(data);
-  }, [data]);
+  // useEffect(() => {
+  //   setGridData(data);
+  // }, [data]);
 
   //    {isLoading  && <div>ssss</div>}
   return (
     <div className="w-3/4">
-      {!isLoading && isSuccess && (
-        <StyledGrid
+      {/* {!isLoading && isSuccess && (
+        <Grid
           columns={columns}
           data={gridData}
           onRowChange={onRowChange}
@@ -166,15 +168,8 @@ export default function AppHome() {
           }}
           onCellChange={onCellChange}
         />
-      )}
+      )} */}
       {/* <TransactionsTable /> */}
-
-      {/* <Grid
-        columns={columns}
-        data={transactions}
-        onCellChange={onCellChange}
-        onRowChange={onRowChange}
-      /> */}
 
       {/* <div>
         {isLoading && <div>Loading... </div>}
@@ -182,6 +177,30 @@ export default function AppHome() {
         {isSuccess && <div>{JSON.stringify(gridData)}</div>}
         <br />
       </div> */}
+      <div className="w-40">
+        <Select
+          options={categories}
+          // onChange={handleTypeSelect}
+          value={"Travel"}
+          placeholder="Select"
+        />
+      </div>
+      <div>
+        {/* <AutoComplete
+          suggestions={[
+            "Alligator",
+            "Bask",
+            "Crocodilian",
+            "Death Roll",
+            "Eggs",
+            "Jaws",
+            "Reptile",
+            "Solitary",
+            "Tail",
+            "Wetlands",
+          ]}
+        /> */}
+      </div>
     </div>
   );
 }

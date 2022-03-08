@@ -2,7 +2,7 @@ export const categories = [
   {
     label: "Auto & Transportation",
     value: "Auto & Transportation",
-    subcategories: [
+    options: [
       { label: "Gas/Fuel", value: "Gas/Fuel" },
       { label: "Insurance", value: "Insurance" },
       { label: "Parts/Service", value: "Parts/Service" },
@@ -12,27 +12,27 @@ export const categories = [
   {
     label: "Bank",
     value: "Bank",
-    subcategories: [{ label: "Transfer", value: "Transfer" }],
+    options: [{ label: "Transfer", value: "Transfer" }],
   },
   {
     label: "Cash",
     value: "Cash",
-    subcategories: [{ label: "Cash/ATM", value: "Cash/ATM" }],
+    options: [{ label: "Cash/ATM", value: "Cash/ATM" }],
   },
   {
     label: "Credit Card",
     value: "Credit Card",
-    subcategories: [{ label: "Payment", value: "Payment" }],
+    options: [{ label: "Payment", value: "Payment" }],
   },
   {
     label: "Education",
     value: "Education",
-    subcategories: [{ label: "Tuition", value: "Tuition" }],
+    options: [{ label: "Tuition", value: "Tuition" }],
   },
   {
     label: "Entertainment",
     value: "Entertainment",
-    subcategories: [
+    options: [
       { label: "Movies", value: "Movies" },
       { label: "Other", value: "Other" },
       { label: "Sports", value: "Sports" },
@@ -41,12 +41,12 @@ export const categories = [
   {
     label: "Fitness",
     value: "Fitness",
-    subcategories: [{ label: "Gym", value: "Gym" }],
+    options: [{ label: "Gym", value: "Gym" }],
   },
   {
     label: "Food & Dining",
     value: "Food & Dining",
-    subcategories: [
+    options: [
       { label: "Dining Out", value: "Dining Out" },
       { label: "Groceries", value: "Groceries" },
     ],
@@ -54,12 +54,12 @@ export const categories = [
   {
     label: "Gifts & Donations",
     value: "Gifts & Donations",
-    subcategories: [{ label: "Gifts", value: "Gifts" }],
+    options: [{ label: "Gifts", value: "Gifts" }],
   },
   {
     label: "Government",
     value: "Government",
-    subcategories: [
+    options: [
       { label: "Federal Tax", value: "Federal Tax" },
       { label: "Legal", value: "Legal" },
       { label: "Property Tax", value: "Property Tax" },
@@ -68,7 +68,7 @@ export const categories = [
   {
     label: "Healthcare",
     value: "Healthcare",
-    subcategories: [
+    options: [
       { label: "Doctor", value: "Doctor" },
       { label: "Equipment", value: "Equipment" },
       { label: "Pharmacy", value: "Pharmacy" },
@@ -78,7 +78,7 @@ export const categories = [
   {
     label: "Hobbies",
     value: "Hobbies",
-    subcategories: [
+    options: [
       { label: "Guitar", value: "Guitar" },
       { label: "Software", value: "Software" },
     ],
@@ -86,7 +86,7 @@ export const categories = [
   {
     label: "Home",
     value: "Home",
-    subcategories: [
+    options: [
       { label: "Furnishings & Décor", value: "Furnishings & Décor" },
       { label: "Home Improvement", value: "Home Improvement" },
       { label: "Lawn Care", value: "Lawn Care" },
@@ -98,7 +98,7 @@ export const categories = [
   {
     label: "Income",
     value: "Income",
-    subcategories: [
+    options: [
       { label: "Credit Card Reward", value: "Credit Card Reward" },
       { label: "Interest", value: "Interest" },
       { label: "Salary", value: "Salary" },
@@ -107,12 +107,12 @@ export const categories = [
   {
     label: "Insurance",
     value: "Insurance",
-    subcategories: [{ label: "Life Insurance", value: "Life Insurance" }],
+    options: [{ label: "Life Insurance", value: "Life Insurance" }],
   },
   {
     label: "Investment",
     value: "Investment",
-    subcategories: [
+    options: [
       { label: "Expense", value: "Expense" },
       { label: "Income", value: "Income" },
     ],
@@ -120,7 +120,7 @@ export const categories = [
   {
     label: "Other",
     value: "Other",
-    subcategories: [
+    options: [
       { label: "General", value: "General" },
       { label: "Shipping", value: "Shipping" },
     ],
@@ -128,7 +128,7 @@ export const categories = [
   {
     label: "Personal Care",
     value: "Personal Care",
-    subcategories: [
+    options: [
       { label: "Hair", value: "Hair" },
       { label: "Spa & Massage", value: "Spa & Massage" },
     ],
@@ -136,7 +136,7 @@ export const categories = [
   {
     label: "Pets",
     value: "Pets",
-    subcategories: [
+    options: [
       { label: "Healthcare", value: "Healthcare" },
       { label: "Pet Food", value: "Pet Food" },
     ],
@@ -144,17 +144,17 @@ export const categories = [
   {
     label: "Phone",
     value: "Phone",
-    subcategories: [{ label: "Cell Phone", value: "Cell Phone" }],
+    options: [{ label: "Cell Phone", value: "Cell Phone" }],
   },
   {
     label: "Pool",
     value: "Pool",
-    subcategories: [{ label: "Supplies", value: "Supplies" }],
+    options: [{ label: "Supplies", value: "Supplies" }],
   },
   {
     label: "Shopping",
     value: "Shopping",
-    subcategories: [
+    options: [
       { label: "Clothing", value: "Clothing" },
       { label: "Online Purchase", value: "Online Purchase" },
     ],
@@ -162,7 +162,7 @@ export const categories = [
   {
     label: "Subscription",
     value: "Subscription",
-    subcategories: [
+    options: [
       { label: "Magazine", value: "Magazine" },
       { label: "Music", value: "Music" },
     ],
@@ -170,12 +170,12 @@ export const categories = [
   {
     label: "Television",
     value: "Television",
-    subcategories: [{ label: "Streaming", value: "Streaming" }],
+    options: [{ label: "Streaming", value: "Streaming" }],
   },
   {
     label: "Travel",
     value: "Travel",
-    subcategories: [
+    options: [
       { label: "Activities", value: "Activities" },
       { label: "Airfare", value: "Airfare" },
       { label: "Cash/ATM", value: "Cash/ATM" },
@@ -189,7 +189,7 @@ export const categories = [
   {
     label: "Utilities",
     value: "Utilities",
-    subcategories: [
+    options: [
       { label: "City Services", value: "City Services" },
       { label: "Gas & Electric", value: "Gas & Electric" },
     ],
@@ -197,7 +197,7 @@ export const categories = [
   {
     label: "Wedding",
     value: "Wedding",
-    subcategories: [
+    options: [
       { label: "Ceremony", value: "Ceremony" },
       { label: "Licence", value: "Licence" },
       { label: "Ring", value: "Ring" },
